@@ -29,15 +29,29 @@ jobs:
       - uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
-      - run: uv sync --frozen --dev
+      - run: uv sync --frozen --all-extras
       - run: uv run python manage.py migrate --run-syncdb
-      - run: uv run pytest -v
+      - run: uv run pytest --cov=maintenance --cov=domuscura --cov-report=term-missing -v
+        env:
+          DJANGO_SECRET_KEY: ci-test-key
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+      - run: uv sync --frozen --all-extras
+      - run: uv run playwright install chromium --with-deps
+      - run: uv run python manage.py migrate --run-syncdb
+      - run: uv run pytest tests/e2e/ -v -m e2e
         env:
           DJANGO_SECRET_KEY: ci-test-key
 
   docker:
     runs-on: ubuntu-latest
-    needs: [lint, test]
+    needs: [lint, test, e2e]
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3

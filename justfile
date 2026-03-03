@@ -15,6 +15,17 @@ shell:
 test:
     uv run pytest -v
 
+test-cov:
+    uv run pytest --cov=maintenance --cov=domuscura --cov-report=term-missing -v
+
+test-e2e:
+    uv run pytest tests/e2e/ -v -m e2e
+
+test-all: test test-e2e
+
+install-playwright:
+    uv run playwright install chromium
+
 check:
     uv run python manage.py check
 
