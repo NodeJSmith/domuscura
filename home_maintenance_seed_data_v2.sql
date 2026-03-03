@@ -225,20 +225,20 @@ INSERT INTO schedules (name, description, category, frequency_days, frequency_la
 
 -- ─── LONGER INTERVALS ───────────────────────────────────────────────────────
 
-INSERT INTO schedules (name, description, category, frequency_days, frequency_label, priority, impact, estimated_minutes, pro_recommended, notes) VALUES
+INSERT INTO schedules (name, description, category, frequency_days, frequency_label, season_hint, priority, impact, estimated_minutes, pro_recommended, notes) VALUES
 ('Check/replace water heater anode rod',
  'The sacrificial anode rod protects the tank from corrosion. Unscrew it from the top of the tank and inspect. Replace if more than 50% corroded. Kansas hard water eats these faster.',
- 'Plumbing', 1095, 'Every 2-3 years', 'high', 'protective', 30, 0,
+ 'Plumbing', 1095, 'Every 2-3 years', NULL, 'high', 'protective', 30, 0,
  'Requires a 1-1/16" socket and breaker bar. Can be very tight. This is the single best thing you can do to extend tank water heater life.'),
 
 ('Reseal driveway',
  'If you have an asphalt driveway, clean and apply sealcoat. Fill any cracks first. Concrete driveways should be sealed too but less frequently.',
- 'Exterior', 730, 'Every 2 years', 'low', 'protective', 120, 0,
+ 'Exterior', 730, 'Every 2 years', NULL, 'low', 'protective', 120, 0,
  'Skip if you have a concrete driveway (seal every 3-5 years instead). Set active=0 if not applicable.'),
 
 ('Replace smoke detectors',
  'Smoke detectors expire after 10 years from manufacture date (not purchase date). Check the date printed on the back. Replace the entire unit.',
- 'Safety', 3650, 'Every 10 years', 'critical', 'safety', 30, 0,
+ 'Safety', 3650, 'Every 10 years', NULL, 'critical', 'safety', 30, 0,
  'Replace all at once so they''re on the same cycle. Interconnected ones are best so they all alarm together.'),
 
 ('Professional chimney inspection and cleaning',
