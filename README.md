@@ -19,16 +19,16 @@ Open [http://localhost:8000](http://localhost:8000).
 
 ## Quick Start (Local)
 
-Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
+Requires Python 3.11+, [uv](https://docs.astral.sh/uv/), and [just](https://just.systems/).
 
 ```bash
 git clone https://github.com/NodeJSmith/domuscura.git
 cd domuscura
-make setup   # installs deps, runs migrations, seeds data
-make dev     # starts dev server on http://localhost:8000
+just setup   # installs deps, runs migrations, seeds data
+just dev     # starts dev server on http://localhost:8000
 ```
 
-Or without Make:
+Or without just:
 
 ```bash
 uv sync --dev
@@ -74,10 +74,10 @@ All settings are controlled via environment variables. See [`.env.example`](.env
 ## Development
 
 ```bash
-make install   # install all dependencies including dev
-make test      # run pytest
-make check     # run Django system checks
-make shell     # open Django shell
+just install   # install all dependencies including dev
+just test      # run pytest
+just check     # run Django system checks
+just shell     # open Django shell
 ```
 
 ## Project Structure
@@ -96,7 +96,7 @@ domuscura/
 │   └── management/     # seed_data command
 ├── Dockerfile
 ├── docker-compose.yml
-├── Makefile
+├── justfile
 └── pyproject.toml      # Dependencies managed with uv
 ```
 
