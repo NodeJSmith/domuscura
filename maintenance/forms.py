@@ -1,7 +1,45 @@
 from django import forms
 from django.utils import timezone
 
-from .models import Issue, Project, Schedule, WorkLog
+from .models import Asset, Issue, Project, Schedule, WorkLog
+
+
+class AssetForm(forms.ModelForm):
+    class Meta:
+        model = Asset
+        fields = [
+            "name",
+            "location",
+            "category",
+            "make",
+            "model_name",
+            "serial_number",
+            "install_date",
+            "warranty_expires",
+            "expected_lifespan_years",
+            "purchase_price",
+            "notes",
+        ]
+        widgets = {
+            "notes": forms.Textarea(attrs={"rows": 3}),
+            "install_date": forms.DateInput(attrs={"type": "date"}),
+            "warranty_expires": forms.DateInput(attrs={"type": "date"}),
+            "purchase_price": forms.NumberInput(attrs={"step": "0.01", "min": "0"}),
+            "expected_lifespan_years": forms.NumberInput(attrs={"min": "0"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["location"].required = False
+        self.fields["category"].required = False
+        self.fields["make"].required = False
+        self.fields["model_name"].required = False
+        self.fields["serial_number"].required = False
+        self.fields["install_date"].required = False
+        self.fields["warranty_expires"].required = False
+        self.fields["expected_lifespan_years"].required = False
+        self.fields["purchase_price"].required = False
+        self.fields["notes"].required = False
 
 
 class ProjectForm(forms.ModelForm):

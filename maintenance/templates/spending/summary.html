@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Spending — Domuscura{% endblock %}
+
+{% block content %}
+<hgroup>
+    <h1>Spending</h1>
+    <p>Cost tracking and maintenance spending overview</p>
+</hgroup>
+
+<!-- Summary cards -->
+<div class="grid">
+    <article>
+        <header><strong>Last 30 Days</strong></header>
+        <h2>${{ stats.last_30.total_cost }}</h2>
+        <small>{{ stats.last_30.total_entries }} entries &middot; {{ stats.last_30.total_minutes }} min logged</small>
+    </article>
+    <article>
+        <header><strong>Last 90 Days</strong></header>
+        <h2>${{ stats.last_90.total_cost }}</h2>
+        <small>{{ stats.last_90.total_entries }} entries &middot; {{ stats.last_90.total_minutes }} min logged</small>
+    </article>
+    <article>
+        <header><strong>Year to Date</strong></header>
+        <h2>${{ stats.ytd.total_cost }}</h2>
+        <small>{{ stats.ytd.total_entries }} entries &middot; {{ stats.ytd.total_minutes }} min logged</small>
+    </article>
+    <article>
+        <header><strong>All Time</strong></header>
+        <h2>${{ stats.all_time.total_cost }}</h2>
+        <small>{{ stats.all_time.total_entries }} entries &middot; {{ stats.all_time.total_minutes }} min logged</small>
+    </article>
+</div>
+
+{% if months %}
+<article>
+    <header><strong>Monthly Spending (Last 12 Months)</strong></header>
+    <figure>
+    <table>
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Spent</th>
+                <th>Entries</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for month in months %}
+            <tr>
+                <td>{{ month.label }}</td>
+                <td>${{ month.total }}</td>
+                <td>{{ month.count }}</td>
+                <td>
+                    <div style="background: var(--pico-primary); height: 1rem; width: {% widthratio month.total 1000 100 %}%; min-width: {% if month.total %}2px{% else %}0{% endif %}; border-radius: 0.25rem;"></div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </figure>
+</article>
+{% endif %}
+
+{% if categories %}
+<article>
+    <header><strong>Spending by Category (YTD)</strong></header>
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Total</th>
+                <th>Entries</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cat in categories %}
+            <tr>
+                <td>{{ cat.name }}</td>
+                <td>${{ cat.total }}</td>
+                <td>{{ cat.count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</article>
+{% endif %}
+
+{% if recent_logs %}
+<article>
+    <header><strong>Recent Work Logs</strong></header>
+    <figure>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Task</th>
+                <th>By</th>
+                <th>Duration</th>
+                <th>Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in recent_logs %}
+            <tr>
+                <td>{{ log.completed_at|date:"M j, Y" }}</td>
+                <td>
+                    {% if log.schedule %}
+                    <a href="{% url 'schedule_detail' log.schedule.id %}">{{ log.schedule.name }}</a>
+                    {% elif log.project %}
+                    <a href="{% url 'project_detail' log.project.id %}">{{ log.project.name }}</a>
+                    {% else %}
+                    Ad-hoc{% if log.asset %} ({{ log.asset.name }}){% endif %}
+                    {% endif %}
+                </td>
+                <td>{{ log.performed_by|default:"—" }}</td>
+                <td>{% if log.duration_minutes %}{{ log.duration_minutes }} min{% else %}—{% endif %}</td>
+                <td>{% if log.cost %}${{ log.cost }}{% else %}—{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </figure>
+</article>
+{% endif %}
+{% endblock %}

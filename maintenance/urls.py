@@ -1,5 +1,6 @@
 from django.urls import path
 
+from .views.asset import asset_create, asset_detail, asset_edit, asset_list
 from .views.dashboard import dashboard
 from .views.issue import issue_create, issue_detail, issue_edit, issue_list
 from .views.project import project_create, project_detail, project_edit, project_list
@@ -10,6 +11,7 @@ from .views.schedule import (
     schedule_list,
     schedule_toggle_active,
 )
+from .views.spending import spending_summary
 from .views.work_log import log_work_form, quick_log
 
 urlpatterns = [
@@ -30,6 +32,13 @@ urlpatterns = [
     path("issues/new/", issue_create, name="issue_create"),
     path("issues/<int:pk>/", issue_detail, name="issue_detail"),
     path("issues/<int:pk>/edit/", issue_edit, name="issue_edit"),
+    # Assets
+    path("assets/", asset_list, name="asset_list"),
+    path("assets/new/", asset_create, name="asset_create"),
+    path("assets/<int:pk>/", asset_detail, name="asset_detail"),
+    path("assets/<int:pk>/edit/", asset_edit, name="asset_edit"),
+    # Spending
+    path("spending/", spending_summary, name="spending_summary"),
     # Work logs
     path("work-log/quick/<int:schedule_id>/", quick_log, name="quick_log"),
     path("work-log/form/", log_work_form, name="work_log_form"),
