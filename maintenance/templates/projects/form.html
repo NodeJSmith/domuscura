@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}{% if editing %}Edit {{ project.name }}{% else %}New Project{% endif %} — Domuscura{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ul>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'project_list' %}">Projects</a></li>
+        {% if editing %}
+        <li><a href="{% url 'project_detail' project.id %}">{{ project.name }}</a></li>
+        <li>Edit</li>
+        {% else %}
+        <li>New</li>
+        {% endif %}
+    </ul>
+</nav>
+
+<h1>{% if editing %}Edit Project{% else %}New Project{% endif %}</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <article aria-label="Validation errors" style="background: var(--pico-del-color); color: white; padding: 0.5rem 1rem;">
+        <ul>
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <li>{{ field|title }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        </ul>
+    </article>
+    {% endif %}
+
+    <label>
+        Name *
+        {{ form.name }}
+    </label>
+
+    <label>
+        Description
+        {{ form.description }}
+    </label>
+
+    <div class="grid">
+        <label>
+            Asset
+            {{ form.asset }}
+        </label>
+        <label>
+            Location
+            {{ form.location }}
+        </label>
+        <label>
+            Category
+            {{ form.category }}
+        </label>
+    </div>
+
+    <div class="grid">
+        <label>
+            Status
+            {{ form.status }}
+        </label>
+        <label>
+            Priority
+            {{ form.priority }}
+        </label>
+        <label>
+            Impact
+            {{ form.impact }}
+        </label>
+    </div>
+
+    <div class="grid">
+        <label>
+            Target Date
+            {{ form.target_date }}
+        </label>
+        <label>
+            Estimated Cost ($)
+            {{ form.estimated_cost }}
+        </label>
+    </div>
+
+    <fieldset>
+        <label>
+            {{ form.pro_recommended }}
+            Professional recommended
+        </label>
+    </fieldset>
+
+    <label>
+        Notes
+        {{ form.notes }}
+    </label>
+
+    <div style="display: flex; gap: 0.5rem;">
+        <button type="submit">{% if editing %}Save Changes{% else %}Create Project{% endif %}</button>
+        {% if editing %}
+        <a href="{% url 'project_detail' project.id %}" role="button" class="outline secondary">Cancel</a>
+        {% else %}
+        <a href="{% url 'project_list' %}" role="button" class="outline secondary">Cancel</a>
+        {% endif %}
+    </div>
+</form>
+{% endblock %}

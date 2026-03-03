@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Projects — Domuscura{% endblock %}
+
+{% block content %}
+<hgroup>
+    <h1>Projects</h1>
+    <p>One-time improvements, repairs, and upgrades</p>
+</hgroup>
+
+<details open>
+    <summary>Filters</summary>
+    <form method="get">
+        <div class="grid">
+            <label>
+                Search
+                <input type="search" name="q" value="{{ filters.q }}" placeholder="Search projects...">
+            </label>
+            <label>
+                Status
+                <select name="status">
+                    <option value="">All Statuses</option>
+                    {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                Priority
+                <select name="priority">
+                    <option value="">All Priorities</option>
+                    {% for value, label in priorities %}
+                    <option value="{{ value }}" {% if filters.priority == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <button type="submit">Filter</button>
+            <a href="{% url 'project_list' %}" role="button" class="outline secondary">Clear</a>
+            <a href="{% url 'project_create' %}" role="button" class="outline" style="margin-left: auto;">+ New Project</a>
+        </div>
+    </form>
+</details>
+
+<figure>
+<table role="grid">
+    <thead>
+        <tr>
+            <th>Project</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Target Date</th>
+            <th>Est. Cost</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for project in projects %}
+        <tr>
+            <td>
+                <a href="{% url 'project_detail' project.id %}"><strong>{{ project.name }}</strong></a>
+                {% if project.asset %}<br><small>{{ project.asset.name }}</small>{% endif %}
+            </td>
+            <td>{{ project.category|default:"—" }}</td>
+            <td>{% include "partials/status_badge.html" with status=project.effective_status_display %}</td>
+            <td>{{ project.get_priority_display }}</td>
+            <td>{{ project.target_date|date:"M j, Y"|default:"—" }}</td>
+            <td>{% if project.estimated_cost %}${{ project.estimated_cost }}{% else %}—{% endif %}</td>
+            <td>
+                <a href="{% url 'project_edit' project.id %}"
+                   role="button" class="outline secondary"
+                   style="padding: 0.15rem 0.5rem; margin: 0; font-size: 0.8rem;">
+                    Edit
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">No projects match your filters.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</figure>
+
+<p><small>{{ projects|length }} project{{ projects|length|pluralize }}</small></p>
+{% endblock %}

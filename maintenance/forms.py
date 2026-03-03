@@ -1,7 +1,75 @@
 from django import forms
 from django.utils import timezone
 
-from .models import Schedule, WorkLog
+from .models import Issue, Project, Schedule, WorkLog
+
+
+class ProjectForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = [
+            "name",
+            "description",
+            "asset",
+            "location",
+            "category",
+            "priority",
+            "impact",
+            "status",
+            "target_date",
+            "estimated_cost",
+            "pro_recommended",
+            "notes",
+        ]
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 3}),
+            "notes": forms.Textarea(attrs={"rows": 3}),
+            "target_date": forms.DateInput(attrs={"type": "date"}),
+            "estimated_cost": forms.NumberInput(attrs={"step": "0.01", "min": "0"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["description"].required = False
+        self.fields["asset"].required = False
+        self.fields["location"].required = False
+        self.fields["category"].required = False
+        self.fields["impact"].required = False
+        self.fields["target_date"].required = False
+        self.fields["estimated_cost"].required = False
+        self.fields["notes"].required = False
+
+
+class IssueForm(forms.ModelForm):
+    class Meta:
+        model = Issue
+        fields = [
+            "summary",
+            "details",
+            "asset",
+            "location",
+            "severity",
+            "status",
+            "source",
+            "discovered_at",
+            "project",
+            "notes",
+        ]
+        widgets = {
+            "details": forms.Textarea(attrs={"rows": 3}),
+            "notes": forms.Textarea(attrs={"rows": 3}),
+            "discovered_at": forms.DateInput(attrs={"type": "date"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["details"].required = False
+        self.fields["asset"].required = False
+        self.fields["location"].required = False
+        self.fields["source"].required = False
+        self.fields["discovered_at"].required = False
+        self.fields["project"].required = False
+        self.fields["notes"].required = False
 
 
 class ScheduleForm(forms.ModelForm):
