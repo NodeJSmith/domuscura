@@ -1,0 +1,33 @@
+<tr id="schedule-row-{{ schedule.id }}" {% if not schedule.active %}style="opacity: 0.5;"{% endif %}>
+    <td>
+        <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
+        {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
+    </td>
+    <td>{{ schedule.effective_category|default:"—" }}</td>
+    <td>
+        {{ schedule.frequency_label|default:schedule.frequency_days }}
+        {% if not schedule.frequency_label %}d{% endif %}
+    </td>
+    <td>{{ schedule.get_priority_display }}</td>
+    <td>{% include "partials/status_badge.html" with status=schedule.status %}</td>
+    <td>
+        <div style="display: flex; gap: 0.25rem;">
+            <form hx-post="{% url 'quick_log' schedule.id %}"
+                  hx-target="#schedule-row-{{ schedule.id }}"
+                  hx-swap="outerHTML"
+                  style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit"
+                        style="padding: 0.15rem 0.5rem; margin: 0; font-size: 0.8rem;"
+                        {% if not schedule.active %}disabled{% endif %}>
+                    Done
+                </button>
+            </form>
+            <a href="{% url 'schedule_edit' schedule.id %}"
+               role="button" class="outline secondary"
+               style="padding: 0.15rem 0.5rem; margin: 0; font-size: 0.8rem;">
+                Edit
+            </a>
+        </div>
+    </td>
+</tr>

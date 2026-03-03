@@ -1,0 +1,5 @@
+{% for schedule in schedules %}
+{% include "partials/schedule_row.html" with schedule=schedule %}
+{% empty %}
+<tr><td colspan="6">No schedules match your filters.</td></tr>
+{% endfor %}

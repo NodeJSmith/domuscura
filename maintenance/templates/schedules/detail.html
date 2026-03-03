@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}{{ schedule.name }} — Domuscura{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ul>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'schedule_list' %}">Schedules</a></li>
+        <li>{{ schedule.name }}</li>
+    </ul>
+</nav>
+
+<hgroup>
+    <h1>
+        {{ schedule.name }}
+        {% include "partials/status_badge.html" with status=schedule.status %}
+    </h1>
+    <p>
+        {{ schedule.frequency_label|default:schedule.frequency_days }}
+        {% if not schedule.frequency_label %}day{% endif %} interval
+        &middot; {{ schedule.get_priority_display }} priority
+        {% if not schedule.active %}&middot; <mark>Inactive</mark>{% endif %}
+    </p>
+</hgroup>
+
+<div class="grid">
+    <div>
+        <article>
+            <header><strong>Details</strong></header>
+            {% if schedule.description %}
+            <p>{{ schedule.description }}</p>
+            {% endif %}
+
+            <dl>
+                {% if schedule.effective_category %}
+                <dt>Category</dt><dd>{{ schedule.effective_category }}</dd>
+                {% endif %}
+                {% if schedule.effective_location %}
+                <dt>Location</dt><dd>{{ schedule.effective_location }}</dd>
+                {% endif %}
+                {% if schedule.asset %}
+                <dt>Asset</dt><dd>{{ schedule.asset.name }}</dd>
+                {% endif %}
+                {% if schedule.impact %}
+                <dt>Impact</dt><dd>{{ schedule.get_impact_display }}</dd>
+                {% endif %}
+                {% if schedule.season_hint %}
+                <dt>Season</dt><dd>{{ schedule.season_hint }}</dd>
+                {% endif %}
+                {% if schedule.estimated_minutes %}
+                <dt>Est. Time</dt><dd>{{ schedule.estimated_minutes }} min</dd>
+                {% endif %}
+                {% if schedule.estimated_cost %}
+                <dt>Est. Cost</dt><dd>${{ schedule.estimated_cost }}</dd>
+                {% endif %}
+                {% if schedule.pro_recommended %}
+                <dt>Professional</dt><dd>Recommended</dd>
+                {% endif %}
+                {% if schedule.notes %}
+                <dt>Notes</dt><dd>{{ schedule.notes }}</dd>
+                {% endif %}
+            </dl>
+
+            <footer>
+                <a href="{% url 'schedule_edit' schedule.id %}" role="button" class="outline">Edit</a>
+            </footer>
+        </article>
+    </div>
+
+    <div>
+        <article>
+            <header>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong>Status</strong>
+                    <form hx-post="{% url 'quick_log' schedule.id %}"
+                          hx-target="body"
+                          hx-swap="none"
+                          hx-on::after-request="window.location.reload()"
+                          style="margin: 0;">
+                        {% csrf_token %}
+                        <button type="submit" style="padding: 0.25rem 0.75rem; margin: 0;">
+                            Mark Done
+                        </button>
+                    </form>
+                </div>
+            </header>
+
+            {% if schedule.status == "overdue" %}
+            <p><strong style="color: var(--pico-del-color);">Overdue</strong> by {{ schedule.days_overdue }} day{{ schedule.days_overdue|pluralize }}</p>
+            {% elif schedule.status == "due_soon" %}
+            <p><strong style="color: #e67e22;">Due soon</strong> — {{ schedule.days_until_due }} day{{ schedule.days_until_due|pluralize }} remaining</p>
+            {% elif schedule.status == "ok" %}
+            <p><strong style="color: var(--pico-ins-color);">Up to date</strong> — due {{ schedule.next_due_date|date:"M j, Y" }}</p>
+            {% elif schedule.status == "never_done" %}
+            <p><strong>Never completed</strong> — no work logs yet</p>
+            {% endif %}
+
+            {% if schedule.last_completed %}
+            <p><small>Last done: {{ schedule.last_completed|date:"M j, Y g:i A" }} ({{ schedule.days_since_last }} day{{ schedule.days_since_last|pluralize }} ago)</small></p>
+            {% endif %}
+        </article>
+    </div>
+</div>
+
+<!-- Work Log History -->
+<article>
+    <header><strong>Work Log History</strong></header>
+
+    {% if work_logs %}
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Performed By</th>
+                <th>Duration</th>
+                <th>Cost</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in work_logs %}
+            <tr>
+                <td>{{ log.completed_at|date:"M j, Y g:i A" }}</td>
+                <td>{{ log.performed_by|default:"—" }}</td>
+                <td>{% if log.duration_minutes %}{{ log.duration_minutes }} min{% else %}—{% endif %}</td>
+                <td>{% if log.cost %}${{ log.cost }}{% else %}—{% endif %}</td>
+                <td>{{ log.notes|default:"—"|truncatewords:20 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No work has been logged for this schedule yet.</p>
+    {% endif %}
+</article>
+{% endblock %}
