@@ -19,7 +19,8 @@ test-cov:
     uv run pytest --cov=maintenance --cov=domuscura --cov-report=term-missing -v
 
 test-e2e:
-    uv run pytest tests/e2e/ -v -m e2e
+    docker compose build e2e
+    docker compose run --rm e2e
 
 test-all: test test-e2e
 

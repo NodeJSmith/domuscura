@@ -15,5 +15,11 @@ services:
       retries: 3
       start_period: 10s
 
+  e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+    profiles: ["test"]
+
 volumes:
   db-data:
