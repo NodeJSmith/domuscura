@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Schedules — Domuscura{% endblock %}
+
+{% block content %}
+<hgroup>
+    <h1>Schedules</h1>
+    <p>Recurring maintenance tasks</p>
+</hgroup>
+
+<!-- Filters -->
+<details open>
+    <summary>Filters</summary>
+    <form method="get" action="{% url 'schedule_list' %}"
+          hx-get="{% url 'schedule_list' %}"
+          hx-target="#schedule-table-body"
+          hx-swap="innerHTML"
+          hx-push-url="true">
+        <div class="grid">
+            <label>
+                Search
+                <input type="search" name="q" value="{{ filters.q }}" placeholder="Search schedules...">
+            </label>
+            <label>
+                Category
+                <select name="category">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {% if filters.category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                Priority
+                <select name="priority">
+                    <option value="">All Priorities</option>
+                    {% for value, label in priorities %}
+                    <option value="{{ value }}" {% if filters.priority == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <div class="grid">
+            <label>
+                Location
+                <select name="location">
+                    <option value="">All Locations</option>
+                    {% for loc in locations %}
+                    <option value="{{ loc.id }}" {% if filters.location == loc.id|slugify %}selected{% endif %}>{{ loc.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                Status
+                <select name="status">
+                    <option value="">All Statuses</option>
+                    <option value="overdue" {% if filters.status == "overdue" %}selected{% endif %}>Overdue</option>
+                    <option value="due_soon" {% if filters.status == "due_soon" %}selected{% endif %}>Due Soon</option>
+                    <option value="ok" {% if filters.status == "ok" %}selected{% endif %}>OK</option>
+                    <option value="never_done" {% if filters.status == "never_done" %}selected{% endif %}>Never Done</option>
+                </select>
+            </label>
+            <label>
+                Active
+                <select name="active">
+                    <option value="active" {% if filters.active == "active" %}selected{% endif %}>Active Only</option>
+                    <option value="inactive" {% if filters.active == "inactive" %}selected{% endif %}>Inactive Only</option>
+                    <option value="all" {% if filters.active == "all" %}selected{% endif %}>All</option>
+                </select>
+            </label>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <button type="submit">Filter</button>
+            <a href="{% url 'schedule_list' %}" role="button" class="outline secondary">Clear</a>
+            <a href="{% url 'schedule_create' %}" role="button" class="outline" style="margin-left: auto;">+ New Schedule</a>
+        </div>
+        <input type="hidden" name="sort" value="{{ filters.sort }}">
+    </form>
+</details>
+
+<!-- Results -->
+<figure>
+<table role="grid">
+    <thead>
+        <tr>
+            <th><a href="?sort={% if filters.sort == 'name' %}-{% endif %}name&q={{ filters.q }}&category={{ filters.category }}&priority={{ filters.priority }}&status={{ filters.status }}&active={{ filters.active }}">Name</a></th>
+            <th><a href="?sort={% if filters.sort == 'category' %}-{% endif %}category&q={{ filters.q }}&category={{ filters.category }}&priority={{ filters.priority }}&status={{ filters.status }}&active={{ filters.active }}">Category</a></th>
+            <th><a href="?sort={% if filters.sort == 'frequency' %}-{% endif %}frequency&q={{ filters.q }}&category={{ filters.category }}&priority={{ filters.priority }}&status={{ filters.status }}&active={{ filters.active }}">Frequency</a></th>
+            <th><a href="?sort={% if filters.sort == 'priority' %}-{% endif %}priority&q={{ filters.q }}&category={{ filters.category }}&priority={{ filters.priority }}&status={{ filters.status }}&active={{ filters.active }}">Priority</a></th>
+            <th><a href="?sort={% if filters.sort == 'status' %}-{% endif %}status&q={{ filters.q }}&category={{ filters.category }}&priority={{ filters.priority }}&status={{ filters.status }}&active={{ filters.active }}">Status</a></th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="schedule-table-body">
+        {% include "partials/schedule_list_body.html" %}
+    </tbody>
+</table>
+</figure>
+
+<p><small>{{ schedules|length }} schedule{{ schedules|length|pluralize }}</small></p>
+
+<!-- Work log modal (reused from dashboard) -->
+<dialog id="work-log-modal" x-data="{ open: false }"
+        x-bind:open="open"
+        @work-log-open.window="open = true; $el.showModal()"
+        @close="open = false">
+    <article>
+        <header>
+            <button aria-label="Close" rel="prev" @click="$el.closest('dialog').close()"></button>
+            <h3>Log Work</h3>
+        </header>
+        <div id="work-log-form-container"
+             hx-get="{% url 'work_log_form' %}"
+             hx-trigger="work-log-open from:window"
+             hx-swap="innerHTML">
+        </div>
+    </article>
+</dialog>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }} — Domuscura{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ul>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'project_list' %}">Projects</a></li>
+        <li>{{ project.name }}</li>
+    </ul>
+</nav>
+
+<hgroup>
+    <h1>
+        {{ project.name }}
+        {% include "partials/status_badge.html" with status=project.effective_status_display %}
+    </h1>
+    <p>
+        {{ project.get_priority_display }} priority
+        {% if project.target_date %}&middot; Target: {{ project.target_date|date:"M j, Y" }}{% endif %}
+    </p>
+</hgroup>
+
+<div class="grid">
+    <div>
+        <article>
+            <header><strong>Details</strong></header>
+            {% if project.description %}
+            <p>{{ project.description }}</p>
+            {% endif %}
+
+            <dl>
+                {% if project.category %}
+                <dt>Category</dt><dd>{{ project.category }}</dd>
+                {% endif %}
+                {% if project.location %}
+                <dt>Location</dt><dd>{{ project.location.name }}</dd>
+                {% endif %}
+                {% if project.asset %}
+                <dt>Asset</dt><dd>{{ project.asset.name }}</dd>
+                {% endif %}
+                {% if project.impact %}
+                <dt>Impact</dt><dd>{{ project.get_impact_display }}</dd>
+                {% endif %}
+                {% if project.estimated_cost %}
+                <dt>Est. Cost</dt><dd>${{ project.estimated_cost }}</dd>
+                {% endif %}
+                {% if project.pro_recommended %}
+                <dt>Professional</dt><dd>Recommended</dd>
+                {% endif %}
+                <dt>Status</dt><dd>{{ project.get_status_display }}</dd>
+                {% if project.completed_at %}
+                <dt>Completed</dt><dd>{{ project.completed_at|date:"M j, Y g:i A" }}</dd>
+                {% endif %}
+                {% if project.notes %}
+                <dt>Notes</dt><dd>{{ project.notes }}</dd>
+                {% endif %}
+            </dl>
+
+            <footer>
+                <a href="{% url 'project_edit' project.id %}" role="button" class="outline">Edit</a>
+            </footer>
+        </article>
+    </div>
+
+    <div>
+        {% if issues %}
+        <article>
+            <header><strong>Related Issues</strong></header>
+            <table>
+                <tbody>
+                    {% for issue in issues %}
+                    <tr>
+                        <td><a href="{% url 'issue_detail' issue.id %}">{{ issue.summary }}</a></td>
+                        <td>{{ issue.get_severity_display }}</td>
+                        <td>{{ issue.get_status_display }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </article>
+        {% endif %}
+
+        {% if work_logs %}
+        <article>
+            <header><strong>Work Log</strong></header>
+            <table>
+                <tbody>
+                    {% for log in work_logs %}
+                    <tr>
+                        <td>{{ log.completed_at|date:"M j, Y" }}</td>
+                        <td>{{ log.performed_by|default:"—" }}</td>
+                        <td>{% if log.cost %}${{ log.cost }}{% else %}—{% endif %}</td>
+                        <td>{{ log.notes|default:"—"|truncatewords:15 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </article>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

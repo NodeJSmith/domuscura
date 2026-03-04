@@ -1,0 +1,56 @@
+<form hx-post="{% url 'work_log_form' %}"
+      hx-target="{% if schedule %}#schedule-{{ schedule.id }}{% else %}#work-log-form-container{% endif %}"
+      hx-swap="{% if schedule %}outerHTML{% else %}innerHTML{% endif %}"
+      {% if schedule %}@htmx:after-request="if(event.detail.successful) $el.closest('dialog').close()"{% endif %}>
+    {% csrf_token %}
+
+    {% if schedule %}
+        <input type="hidden" name="schedule" value="{{ schedule.id }}">
+        <p><strong>Logging work for:</strong> {{ schedule.name }}</p>
+    {% else %}
+        <label>
+            Schedule (optional)
+            {{ form.schedule }}
+        </label>
+        <label>
+            Project (optional)
+            {{ form.project }}
+        </label>
+    {% endif %}
+
+    <div class="grid">
+        <label>
+            Completed at
+            {{ form.completed_at }}
+            <small>Leave blank for right now</small>
+        </label>
+        <label>
+            Performed by
+            {{ form.performed_by }}
+        </label>
+    </div>
+
+    <div class="grid">
+        <label>
+            Cost ($)
+            {{ form.cost }}
+        </label>
+        <label>
+            Duration (minutes)
+            {{ form.duration_minutes }}
+        </label>
+    </div>
+
+    <label>
+        Notes
+        {{ form.notes }}
+    </label>
+
+    {% if form.errors %}
+    <article aria-label="Validation errors" style="background: var(--pico-del-color); color: white; padding: 0.5rem 1rem;">
+        {{ form.errors }}
+    </article>
+    {% endif %}
+
+    <button type="submit">Save</button>
+</form>

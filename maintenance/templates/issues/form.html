@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}{% if editing %}Edit Issue{% else %}New Issue{% endif %} — Domuscura{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ul>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'issue_list' %}">Issues</a></li>
+        {% if editing %}
+        <li><a href="{% url 'issue_detail' issue.id %}">{{ issue.summary|truncatewords:5 }}</a></li>
+        <li>Edit</li>
+        {% else %}
+        <li>New</li>
+        {% endif %}
+    </ul>
+</nav>
+
+<h1>{% if editing %}Edit Issue{% else %}New Issue{% endif %}</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <article aria-label="Validation errors" style="background: var(--pico-del-color); color: white; padding: 0.5rem 1rem;">
+        <ul>
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <li>{{ field|title }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        </ul>
+    </article>
+    {% endif %}
+
+    <label>
+        Summary *
+        {{ form.summary }}
+    </label>
+
+    <label>
+        Details
+        {{ form.details }}
+    </label>
+
+    <div class="grid">
+        <label>
+            Asset
+            {{ form.asset }}
+        </label>
+        <label>
+            Location
+            {{ form.location }}
+        </label>
+    </div>
+
+    <div class="grid">
+        <label>
+            Severity
+            {{ form.severity }}
+        </label>
+        <label>
+            Status
+            {{ form.status }}
+        </label>
+        <label>
+            Source
+            {{ form.source }}
+        </label>
+    </div>
+
+    <div class="grid">
+        <label>
+            Discovered Date
+            {{ form.discovered_at }}
+        </label>
+        <label>
+            Linked Project
+            {{ form.project }}
+        </label>
+    </div>
+
+    <label>
+        Notes
+        {{ form.notes }}
+    </label>
+
+    <div style="display: flex; gap: 0.5rem;">
+        <button type="submit">{% if editing %}Save Changes{% else %}Create Issue{% endif %}</button>
+        {% if editing %}
+        <a href="{% url 'issue_detail' issue.id %}" role="button" class="outline secondary">Cancel</a>
+        {% else %}
+        <a href="{% url 'issue_list' %}" role="button" class="outline secondary">Cancel</a>
+        {% endif %}
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}{% if editing %}Edit {{ asset.name }}{% else %}New Asset{% endif %} — Domuscura{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ul>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'asset_list' %}">Assets</a></li>
+        {% if editing %}
+        <li><a href="{% url 'asset_detail' asset.id %}">{{ asset.name }}</a></li>
+        <li>Edit</li>
+        {% else %}
+        <li>New</li>
+        {% endif %}
+    </ul>
+</nav>
+
+<h1>{% if editing %}Edit Asset{% else %}New Asset{% endif %}</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <article aria-label="Validation errors" style="background: var(--pico-del-color); color: white; padding: 0.5rem 1rem;">
+        <ul>
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <li>{{ field|title }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        </ul>
+    </article>
+    {% endif %}
+
+    <label>
+        Name *
+        {{ form.name }}
+    </label>
+
+    <div class="grid">
+        <label>
+            Location
+            {{ form.location }}
+        </label>
+        <label>
+            Category
+            {{ form.category }}
+        </label>
+    </div>
+
+    <div class="grid">
+        <label>
+            Make
+            {{ form.make }}
+        </label>
+        <label>
+            Model
+            {{ form.model_name }}
+        </label>
+        <label>
+            Serial Number
+            {{ form.serial_number }}
+        </label>
+    </div>
+
+    <div class="grid">
+        <label>
+            Install Date
+            {{ form.install_date }}
+        </label>
+        <label>
+            Warranty Expires
+            {{ form.warranty_expires }}
+        </label>
+        <label>
+            Expected Lifespan (years)
+            {{ form.expected_lifespan_years }}
+        </label>
+    </div>
+
+    <label>
+        Purchase Price ($)
+        {{ form.purchase_price }}
+    </label>
+
+    <label>
+        Notes
+        {{ form.notes }}
+    </label>
+
+    <div style="display: flex; gap: 0.5rem;">
+        <button type="submit">{% if editing %}Save Changes{% else %}Create Asset{% endif %}</button>
+        {% if editing %}
+        <a href="{% url 'asset_detail' asset.id %}" role="button" class="outline secondary">Cancel</a>
+        {% else %}
+        <a href="{% url 'asset_list' %}" role="button" class="outline secondary">Cancel</a>
+        {% endif %}
+    </div>
+</form>
+{% endblock %}

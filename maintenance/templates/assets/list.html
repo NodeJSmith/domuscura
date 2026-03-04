@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Assets — Domuscura{% endblock %}
+
+{% block content %}
+<hgroup>
+    <h1>Assets</h1>
+    <p>Equipment, systems, and components in your home</p>
+</hgroup>
+
+<details open>
+    <summary>Filters</summary>
+    <form method="get">
+        <div class="grid">
+            <label>
+                Search
+                <input type="search" name="q" value="{{ filters.q }}" placeholder="Search assets...">
+            </label>
+            <label>
+                Category
+                <select name="category">
+                    <option value="">All Categories</option>
+                    {% for value, label in categories %}
+                    <option value="{{ value }}" {% if filters.category == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                Location
+                <select name="location">
+                    <option value="">All Locations</option>
+                    {% for loc in locations %}
+                    <option value="{{ loc.id }}" {% if filters.location == loc.id|slugify %}selected{% endif %}>{{ loc.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <button type="submit">Filter</button>
+            <a href="{% url 'asset_list' %}" role="button" class="outline secondary">Clear</a>
+            <a href="{% url 'asset_create' %}" role="button" class="outline" style="margin-left: auto;">+ New Asset</a>
+        </div>
+    </form>
+</details>
+
+<figure>
+<table role="grid">
+    <thead>
+        <tr>
+            <th>Asset</th>
+            <th>Category</th>
+            <th>Location</th>
+            <th>Make / Model</th>
+            <th>Warranty</th>
+            <th>Age</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for asset in assets %}
+        <tr>
+            <td><a href="{% url 'asset_detail' asset.id %}"><strong>{{ asset.name }}</strong></a></td>
+            <td>{{ asset.category|default:"—" }}</td>
+            <td>{{ asset.location|default:"—" }}</td>
+            <td>
+                {% if asset.make or asset.model_name %}
+                    {{ asset.make }} {{ asset.model_name }}
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+            <td>
+                {% if asset.warranty_status == "active" %}
+                <small style="color: var(--pico-ins-color);">Active ({{ asset.warranty_expires|date:"M Y" }})</small>
+                {% elif asset.warranty_status == "expired" %}
+                <small style="color: var(--pico-del-color);">Expired</small>
+                {% else %}
+                —
+                {% endif %}
+            </td>
+            <td>{% if asset.age_years is not None %}{{ asset.age_years }}y{% else %}—{% endif %}</td>
+            <td>
+                <a href="{% url 'asset_edit' asset.id %}"
+                   role="button" class="outline secondary"
+                   style="padding: 0.15rem 0.5rem; margin: 0; font-size: 0.8rem;">
+                    Edit
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">No assets match your filters.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</figure>
+
+<p><small>{{ assets|length }} asset{{ assets|length|pluralize }}</small></p>
+{% endblock %}

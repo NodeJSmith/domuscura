@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}{% if editing %}Edit {{ schedule.name }}{% else %}New Schedule{% endif %} — Domuscura{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ul>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'schedule_list' %}">Schedules</a></li>
+        {% if editing %}
+        <li><a href="{% url 'schedule_detail' schedule.id %}">{{ schedule.name }}</a></li>
+        <li>Edit</li>
+        {% else %}
+        <li>New</li>
+        {% endif %}
+    </ul>
+</nav>
+
+<h1>{% if editing %}Edit Schedule{% else %}New Schedule{% endif %}</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <article aria-label="Validation errors" style="background: var(--pico-del-color); color: white; padding: 0.5rem 1rem;">
+        <ul>
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <li>{{ field|title }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        </ul>
+    </article>
+    {% endif %}
+
+    <label>
+        Name *
+        {{ form.name }}
+    </label>
+
+    <label>
+        Description
+        {{ form.description }}
+    </label>
+
+    <div class="grid">
+        <label>
+            Asset
+            {{ form.asset }}
+        </label>
+        <label>
+            Location
+            {{ form.location }}
+        </label>
+        <label>
+            Category
+            {{ form.category }}
+        </label>
+    </div>
+
+    <div class="grid">
+        <label>
+            Frequency (days) *
+            {{ form.frequency_days }}
+        </label>
+        <label>
+            Frequency Label
+            {{ form.frequency_label }}
+            <small>e.g. "Monthly", "Every 3 months"</small>
+        </label>
+        <label>
+            Season Hint
+            {{ form.season_hint }}
+            <small>e.g. "Spring", "Fall"</small>
+        </label>
+    </div>
+
+    <div class="grid">
+        <label>
+            Priority
+            {{ form.priority }}
+        </label>
+        <label>
+            Impact
+            {{ form.impact }}
+        </label>
+    </div>
+
+    <div class="grid">
+        <label>
+            Estimated Time (minutes)
+            {{ form.estimated_minutes }}
+        </label>
+        <label>
+            Estimated Cost ($)
+            {{ form.estimated_cost }}
+        </label>
+    </div>
+
+    <fieldset>
+        <label>
+            {{ form.pro_recommended }}
+            Professional recommended
+        </label>
+        <label>
+            {{ form.active }}
+            Active
+        </label>
+    </fieldset>
+
+    <label>
+        Notes
+        {{ form.notes }}
+    </label>
+
+    <div style="display: flex; gap: 0.5rem;">
+        <button type="submit">{% if editing %}Save Changes{% else %}Create Schedule{% endif %}</button>
+        {% if editing %}
+        <a href="{% url 'schedule_detail' schedule.id %}" role="button" class="outline secondary">Cancel</a>
+        {% else %}
+        <a href="{% url 'schedule_list' %}" role="button" class="outline secondary">Cancel</a>
+        {% endif %}
+    </div>
+</form>
+{% endblock %}

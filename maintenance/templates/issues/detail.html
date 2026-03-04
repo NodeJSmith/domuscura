@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}{{ issue.summary }} — Domuscura{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ul>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'issue_list' %}">Issues</a></li>
+        <li>{{ issue.summary|truncatewords:5 }}</li>
+    </ul>
+</nav>
+
+<hgroup>
+    <h1>{{ issue.summary }}</h1>
+    <p>
+        {{ issue.get_severity_display }} severity &middot; {{ issue.get_status_display }}
+        {% if issue.discovered_at %}&middot; Discovered {{ issue.discovered_at|date:"M j, Y" }}{% endif %}
+    </p>
+</hgroup>
+
+<article>
+    {% if issue.details %}
+    <p>{{ issue.details }}</p>
+    {% endif %}
+
+    <dl>
+        {% if issue.location %}
+        <dt>Location</dt><dd>{{ issue.location.name }}</dd>
+        {% endif %}
+        {% if issue.asset %}
+        <dt>Asset</dt><dd>{{ issue.asset.name }}</dd>
+        {% endif %}
+        {% if issue.source %}
+        <dt>Source</dt><dd>{{ issue.get_source_display }}</dd>
+        {% endif %}
+        {% if issue.project %}
+        <dt>Linked Project</dt>
+        <dd><a href="{% url 'project_detail' issue.project.id %}">{{ issue.project.name }}</a></dd>
+        {% endif %}
+        {% if issue.resolved_at %}
+        <dt>Resolved</dt><dd>{{ issue.resolved_at|date:"M j, Y g:i A" }}</dd>
+        {% endif %}
+        {% if issue.notes %}
+        <dt>Notes</dt><dd>{{ issue.notes }}</dd>
+        {% endif %}
+    </dl>
+
+    <footer>
+        <a href="{% url 'issue_edit' issue.id %}" role="button" class="outline">Edit</a>
+    </footer>
+</article>
+{% endblock %}

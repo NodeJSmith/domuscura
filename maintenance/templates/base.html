@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Domuscura{% endblock %}</title>
+
+    <!-- PicoCSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        :root {
+            --pico-font-size: 93.75%;
+        }
+        body > nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--pico-background-color);
+            border-bottom: 1px solid var(--pico-muted-border-color);
+        }
+        .status-overdue { color: var(--pico-del-color); font-weight: bold; }
+        .status-due-soon { color: var(--pico-ins-color); font-weight: bold; }
+        .status-ok { color: var(--pico-primary); }
+        .status-never-done { color: var(--pico-muted-color); }
+        main { padding-top: 1rem; }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav class="container-fluid">
+        <ul>
+            <li><strong><a href="{% url 'dashboard' %}">Domuscura</a></strong></li>
+        </ul>
+        <ul>
+            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+            <li><a href="{% url 'schedule_list' %}">Schedules</a></li>
+            <li><a href="{% url 'project_list' %}">Projects</a></li>
+            <li><a href="{% url 'issue_list' %}">Issues</a></li>
+            <li><a href="{% url 'asset_list' %}">Assets</a></li>
+            <li><a href="{% url 'spending_summary' %}">Spending</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="container">
+        <hr>
+        <small>Domuscura &mdash; domus (house) + cura (care)</small>
+    </footer>
+</body>
+</html>

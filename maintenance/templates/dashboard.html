@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — Domuscura{% endblock %}
+
+{% block content %}
+<hgroup>
+    <h1>Dashboard</h1>
+    <p>{{ total_active }} active schedule{{ total_active|pluralize }} &middot; {{ today|date:"l, N j" }}</p>
+</hgroup>
+
+{% if overdue %}
+<section>
+    <h2>
+        <mark class="status-overdue">Overdue</mark>
+        <small>({{ overdue|length }})</small>
+    </h2>
+    <div class="grid" id="overdue-grid">
+        {% for schedule in overdue %}
+            {% include "partials/schedule_card.html" with schedule=schedule %}
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if due_soon %}
+<section>
+    <h2>
+        <mark class="status-due-soon">Due Soon</mark>
+        <small>({{ due_soon|length }})</small>
+    </h2>
+    <div class="grid" id="due-soon-grid">
+        {% for schedule in due_soon %}
+            {% include "partials/schedule_card.html" with schedule=schedule %}
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if never_done %}
+<section>
+    <details open>
+        <summary>
+            <strong>Never Done</strong>
+            <small>({{ never_done|length }})</small>
+            — seed schedules not yet started
+        </summary>
+        <div class="grid" id="never-done-grid">
+            {% for schedule in never_done %}
+                {% include "partials/schedule_card.html" with schedule=schedule %}
+            {% endfor %}
+        </div>
+    </details>
+</section>
+{% endif %}
+
+{% if projects %}
+<section>
+    <h2>Active Projects</h2>
+    <table role="grid">
+        <thead>
+            <tr>
+                <th>Project</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Target Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in projects %}
+            <tr>
+                <td>
+                    <strong>{{ project.name }}</strong>
+                    {% if project.category %}<br><small>{{ project.category }}</small>{% endif %}
+                </td>
+                <td>{% include "partials/status_badge.html" with status=project.effective_status_display %}</td>
+                <td>{{ project.get_priority_display }}</td>
+                <td>{{ project.target_date|date:"M j, Y"|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% if ok %}
+<section>
+    <details>
+        <summary>
+            <strong>Up to Date</strong>
+            <small>({{ ok|length }})</small>
+            — recently completed
+        </summary>
+        <div class="grid" id="ok-grid">
+            {% for schedule in ok %}
+                {% include "partials/schedule_card.html" with schedule=schedule %}
+            {% endfor %}
+        </div>
+    </details>
+</section>
+{% endif %}
+
+{% if not overdue and not due_soon and not never_done and not projects %}
+<article>
+    <p>Everything is up to date. Nothing due or overdue.</p>
+</article>
+{% endif %}
+
+<!-- Work log modal -->
+<dialog id="work-log-modal" x-data="{ open: false }"
+        x-bind:open="open"
+        @work-log-open.window="open = true; $el.showModal()"
+        @close="open = false">
+    <article>
+        <header>
+            <button aria-label="Close" rel="prev" @click="$el.closest('dialog').close()"></button>
+            <h3>Log Work</h3>
+        </header>
+        <div id="work-log-form-container"
+             hx-get="{% url 'work_log_form' %}"
+             hx-trigger="work-log-open from:window"
+             hx-swap="innerHTML">
+        </div>
+    </article>
+</dialog>
+{% endblock %}

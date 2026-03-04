@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}{{ asset.name }} — Domuscura{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ul>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'asset_list' %}">Assets</a></li>
+        <li>{{ asset.name }}</li>
+    </ul>
+</nav>
+
+<hgroup>
+    <h1>{{ asset.name }}</h1>
+    <p>
+        {{ asset.category|default:"Uncategorized" }}
+        {% if asset.location %}&middot; {{ asset.location.name }}{% endif %}
+    </p>
+</hgroup>
+
+<div class="grid">
+    <div>
+        <article>
+            <header><strong>Details</strong></header>
+            <dl>
+                {% if asset.make %}
+                <dt>Make</dt><dd>{{ asset.make }}</dd>
+                {% endif %}
+                {% if asset.model_name %}
+                <dt>Model</dt><dd>{{ asset.model_name }}</dd>
+                {% endif %}
+                {% if asset.serial_number %}
+                <dt>Serial Number</dt><dd>{{ asset.serial_number }}</dd>
+                {% endif %}
+                {% if asset.install_date %}
+                <dt>Installed</dt>
+                <dd>{{ asset.install_date|date:"M j, Y" }}{% if asset.age_years is not None %} ({{ asset.age_years }} years){% endif %}</dd>
+                {% endif %}
+                {% if asset.warranty_expires %}
+                <dt>Warranty</dt>
+                <dd>
+                    {% if asset.warranty_status == "active" %}
+                    <span style="color: var(--pico-ins-color);">Active</span> — expires {{ asset.warranty_expires|date:"M j, Y" }}
+                    {% else %}
+                    <span style="color: var(--pico-del-color);">Expired</span> {{ asset.warranty_expires|date:"M j, Y" }}
+                    {% endif %}
+                </dd>
+                {% endif %}
+                {% if asset.expected_lifespan_years %}
+                <dt>Expected Lifespan</dt><dd>{{ asset.expected_lifespan_years }} years</dd>
+                {% endif %}
+                {% if asset.purchase_price %}
+                <dt>Purchase Price</dt><dd>${{ asset.purchase_price }}</dd>
+                {% endif %}
+                {% if asset.notes %}
+                <dt>Notes</dt><dd>{{ asset.notes }}</dd>
+                {% endif %}
+            </dl>
+            <footer>
+                <a href="{% url 'asset_edit' asset.id %}" role="button" class="outline">Edit</a>
+            </footer>
+        </article>
+    </div>
+
+    <div>
+        {% if schedules %}
+        <article>
+            <header><strong>Maintenance Schedules</strong></header>
+            <table>
+                <tbody>
+                    {% for s in schedules %}
+                    <tr>
+                        <td><a href="{% url 'schedule_detail' s.id %}">{{ s.name }}</a></td>
+                        <td><small>{{ s.frequency_label|default:s.frequency_days }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </article>
+        {% endif %}
+
+        {% if projects %}
+        <article>
+            <header><strong>Projects</strong></header>
+            <table>
+                <tbody>
+                    {% for p in projects %}
+                    <tr>
+                        <td><a href="{% url 'project_detail' p.id %}">{{ p.name }}</a></td>
+                        <td>{{ p.get_status_display }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </article>
+        {% endif %}
+
+        {% if issues %}
+        <article>
+            <header><strong>Issues</strong></header>
+            <table>
+                <tbody>
+                    {% for i in issues %}
+                    <tr>
+                        <td><a href="{% url 'issue_detail' i.id %}">{{ i.summary }}</a></td>
+                        <td>{{ i.get_severity_display }}</td>
+                        <td>{{ i.get_status_display }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </article>
+        {% endif %}
+
+        {% if work_logs %}
+        <article>
+            <header><strong>Recent Work</strong></header>
+            <table>
+                <tbody>
+                    {% for log in work_logs %}
+                    <tr>
+                        <td>{{ log.completed_at|date:"M j, Y" }}</td>
+                        <td>
+                            {% if log.schedule %}{{ log.schedule.name }}{% elif log.project %}{{ log.project.name }}{% else %}Ad-hoc{% endif %}
+                        </td>
+                        <td>{% if log.cost %}${{ log.cost }}{% else %}—{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </article>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
