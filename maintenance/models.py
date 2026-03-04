@@ -130,6 +130,37 @@ class Schedule(models.Model):
             return self.asset.location
         return None
 
+    def compute_status(self, last_completed, now=None):
+        """Compute and set status attributes based on last completion time.
+
+        Sets: status, days_since_last, next_due_date, and either
+        days_overdue or days_until_due on self.
+        """
+        from datetime import timedelta
+
+        if now is None:
+            now = timezone.now()
+
+        self.last_completed = last_completed
+
+        if last_completed is None:
+            self.status = "never_done"
+            self.days_since_last = None
+            self.next_due_date = None
+        else:
+            days_since = (now - last_completed).days
+            self.days_since_last = days_since
+            self.next_due_date = (last_completed + timedelta(days=self.frequency_days)).date()
+            if days_since > self.frequency_days:
+                self.status = "overdue"
+                self.days_overdue = days_since - self.frequency_days
+            elif days_since > self.frequency_days * 0.85:
+                self.status = "due_soon"
+                self.days_until_due = self.frequency_days - days_since
+            else:
+                self.status = "ok"
+                self.days_until_due = self.frequency_days - days_since
+
 
 class Project(models.Model):
     PRIORITY_CHOICES = Schedule.PRIORITY_CHOICES
@@ -174,6 +205,8 @@ class Project(models.Model):
 
     @property
     def effective_status(self):
+        if self.status in ("done", "cancelled"):
+            return self.status
         if self.status == "someday":
             return "someday"
         if self.target_date:

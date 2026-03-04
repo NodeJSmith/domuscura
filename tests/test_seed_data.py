@@ -2,6 +2,7 @@ import pytest
 from io import StringIO
 
 from django.core.management import call_command
+from django.db import IntegrityError
 
 from maintenance.management.commands.seed_data import parse_sql_statements
 from maintenance.models import Location, Schedule
@@ -81,7 +82,7 @@ class TestSeedDataCommand:
         # locations — we just verify it got past the guard (no "already" msg)
         try:
             call_command("seed_data", "--force", stdout=out, stderr=StringIO())
-        except Exception:
+        except IntegrityError:
             pass
         output = out.getvalue()
         assert "already" not in output.lower()

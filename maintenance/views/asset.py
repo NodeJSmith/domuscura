@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, redirect, render
 
 from maintenance.forms import AssetForm
-from maintenance.models import Asset
+from maintenance.models import Asset, Location
 
 
 def asset_list(request):
@@ -19,7 +19,6 @@ def asset_list(request):
     if search:
         qs = qs.filter(name__icontains=search)
 
-    from maintenance.models import Location
     locations = Location.objects.all()
 
     context = {

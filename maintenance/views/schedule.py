@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from django.db.models import Q, Subquery, OuterRef
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -20,23 +18,7 @@ def _annotate_status(schedules):
 
     result = []
     for s in schedules:
-        if s.last_completed is None:
-            s.status = "never_done"
-            s.days_since_last = None
-            s.next_due_date = None
-        else:
-            days_since = (now - s.last_completed).days
-            s.days_since_last = days_since
-            s.next_due_date = (s.last_completed + timedelta(days=s.frequency_days)).date()
-            if days_since > s.frequency_days:
-                s.status = "overdue"
-                s.days_overdue = days_since - s.frequency_days
-            elif days_since > s.frequency_days * 0.85:
-                s.status = "due_soon"
-                s.days_until_due = s.frequency_days - days_since
-            else:
-                s.status = "ok"
-                s.days_until_due = s.frequency_days - days_since
+        s.compute_status(s.last_completed, now=now)
         result.append(s)
     return result
 
@@ -127,28 +109,9 @@ def schedule_detail(request, pk):
         pk=pk,
     )
 
-    # Status calculation
     last_log = schedule.work_logs.order_by("-completed_at").first()
-    now = timezone.now()
-    if last_log is None:
-        schedule.status = "never_done"
-        schedule.last_completed = None
-        schedule.days_since_last = None
-        schedule.next_due_date = None
-    else:
-        schedule.last_completed = last_log.completed_at
-        days_since = (now - last_log.completed_at).days
-        schedule.days_since_last = days_since
-        schedule.next_due_date = (last_log.completed_at + timedelta(days=schedule.frequency_days)).date()
-        if days_since > schedule.frequency_days:
-            schedule.status = "overdue"
-            schedule.days_overdue = days_since - schedule.frequency_days
-        elif days_since > schedule.frequency_days * 0.85:
-            schedule.status = "due_soon"
-            schedule.days_until_due = schedule.frequency_days - days_since
-        else:
-            schedule.status = "ok"
-            schedule.days_until_due = schedule.frequency_days - days_since
+    last_completed = last_log.completed_at if last_log else None
+    schedule.compute_status(last_completed)
 
     # Work log history
     work_logs = schedule.work_logs.order_by("-completed_at")[:20]
@@ -198,32 +161,9 @@ def schedule_toggle_active(request, pk):
 
     if request.headers.get("HX-Request"):
         # Return the updated row
-        _annotate_single(schedule)
+        last_log = schedule.work_logs.order_by("-completed_at").first()
+        last_completed = last_log.completed_at if last_log else None
+        schedule.compute_status(last_completed)
         return render(request, "partials/schedule_row.html", {"schedule": schedule})
 
     return redirect("schedule_list")
-
-
-def _annotate_single(schedule):
-    """Annotate a single schedule instance with status info."""
-    now = timezone.now()
-    last_log = schedule.work_logs.order_by("-completed_at").first()
-    if last_log is None:
-        schedule.last_completed = None
-        schedule.status = "never_done"
-        schedule.days_since_last = None
-        schedule.next_due_date = None
-    else:
-        schedule.last_completed = last_log.completed_at
-        days_since = (now - last_log.completed_at).days
-        schedule.days_since_last = days_since
-        schedule.next_due_date = (last_log.completed_at + timedelta(days=schedule.frequency_days)).date()
-        if days_since > schedule.frequency_days:
-            schedule.status = "overdue"
-            schedule.days_overdue = days_since - schedule.frequency_days
-        elif days_since > schedule.frequency_days * 0.85:
-            schedule.status = "due_soon"
-            schedule.days_until_due = schedule.frequency_days - days_since
-        else:
-            schedule.status = "ok"
-            schedule.days_until_due = schedule.frequency_days - days_since

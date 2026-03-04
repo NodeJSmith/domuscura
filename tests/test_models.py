@@ -134,6 +134,22 @@ class TestProject:
         p = Project.objects.create(name="No Date", status="in_progress")
         assert p.effective_status == "in_progress"
 
+    def test_effective_status_done_with_past_target(self, db):
+        p = Project.objects.create(
+            name="Done",
+            status="done",
+            target_date=timezone.now().date() - timedelta(days=30),
+        )
+        assert p.effective_status == "done"
+
+    def test_effective_status_cancelled_with_past_target(self, db):
+        p = Project.objects.create(
+            name="Cancelled",
+            status="cancelled",
+            target_date=timezone.now().date() - timedelta(days=30),
+        )
+        assert p.effective_status == "cancelled"
+
 
 class TestIssue:
     def test_str(self, issue):

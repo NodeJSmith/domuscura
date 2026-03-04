@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum, Count
 from django.shortcuts import render
 from django.utils import timezone
 
@@ -57,9 +57,20 @@ def spending_summary(request):
     # Monthly spending (last 12 months)
     months = []
     for i in range(11, -1, -1):
-        month_start = (now.replace(day=1) - timedelta(days=30 * i)).replace(day=1)
+        # Proper month arithmetic to avoid timedelta drift
+        month = now.month - i
+        year = now.year
+        while month <= 0:
+            month += 12
+            year -= 1
+        month_start = now.replace(year=year, month=month, day=1, hour=0, minute=0, second=0, microsecond=0)
         if i > 0:
-            month_end = (now.replace(day=1) - timedelta(days=30 * (i - 1))).replace(day=1)
+            next_month = month + 1
+            next_year = year
+            if next_month > 12:
+                next_month = 1
+                next_year += 1
+            month_end = now.replace(year=next_year, month=next_month, day=1, hour=0, minute=0, second=0, microsecond=0)
         else:
             month_end = now
 
