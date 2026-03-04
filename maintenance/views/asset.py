@@ -1,9 +1,11 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
 from maintenance.forms import AssetForm
 from maintenance.models import Asset, Location
 
 
+@login_required
 def asset_list(request):
     qs = Asset.objects.select_related("location")
 
@@ -34,6 +36,7 @@ def asset_list(request):
     return render(request, "assets/list.html", context)
 
 
+@login_required
 def asset_detail(request, pk):
     asset = get_object_or_404(Asset.objects.select_related("location"), pk=pk)
 
@@ -51,6 +54,7 @@ def asset_detail(request, pk):
     })
 
 
+@login_required
 def asset_create(request):
     if request.method == "POST":
         form = AssetForm(request.POST)
@@ -63,6 +67,7 @@ def asset_create(request):
     return render(request, "assets/form.html", {"form": form, "editing": False})
 
 
+@login_required
 def asset_edit(request, pk):
     asset = get_object_or_404(Asset, pk=pk)
 

@@ -88,7 +88,7 @@ class Command(BaseCommand):
         # Use our custom parser for seed data (handles '' escaped quotes
         # that contain semicolons inside string values).
         for stmt in parse_sql_statements(seed_file.read_text()):
-            lines = [l for l in stmt.splitlines() if l.strip() and not l.strip().startswith("--")]
+            lines = [line for line in stmt.splitlines() if line.strip() and not line.strip().startswith("--")]
             if not lines:
                 continue
             tmp.execute(stmt)

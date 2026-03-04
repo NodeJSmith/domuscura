@@ -1,78 +1,90 @@
-from django.db.models import Q, Subquery, OuterRef
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from maintenance.forms import ScheduleForm
-from maintenance.models import Location, Schedule, WorkLog
+from maintenance.models import Location, Schedule
 
 
-def _annotate_status(schedules):
+def _annotate_status(queryset):
     """Annotate a queryset of schedules with last_completed and compute status."""
     now = timezone.now()
-    last_completion = (
-        WorkLog.objects.filter(schedule=OuterRef("pk"))
-        .order_by("-completed_at")
-        .values("completed_at")[:1]
-    )
-    schedules = schedules.annotate(last_completed=Subquery(last_completion))
+    queryset = Schedule.annotate_last_completed(queryset)
 
     result = []
-    for s in schedules:
+    for s in queryset:
         s.compute_status(s.last_completed, now=now)
         result.append(s)
     return result
 
 
-def schedule_list(request):
-    qs = Schedule.objects.select_related("asset", "location", "asset__location")
-
-    # Filters
-    category = request.GET.get("category", "")
-    location_id = request.GET.get("location", "")
-    priority = request.GET.get("priority", "")
-    status_filter = request.GET.get("status", "")
-    active_filter = request.GET.get("active", "active")
-    search = request.GET.get("q", "").strip()
-
+def _apply_filters(qs, params):
+    """Apply query-string filters to a Schedule queryset."""
+    active_filter = params.get("active", "active")
     if active_filter == "active":
         qs = qs.filter(active=True)
     elif active_filter == "inactive":
         qs = qs.filter(active=False)
-    # "all" shows both
 
+    category = params.get("category", "")
     if category:
         qs = qs.filter(category=category)
+
+    location_id = params.get("location", "")
     if location_id:
         qs = qs.filter(
             Q(location_id=location_id) | Q(asset__location_id=location_id)
         )
+
+    priority = params.get("priority", "")
     if priority:
         qs = qs.filter(priority=priority)
+
+    search = params.get("q", "").strip()
     if search:
         qs = qs.filter(name__icontains=search)
+
+    return qs
+
+
+SORT_KEYS = {
+    "name": lambda s: s.name.lower(),
+    "priority": lambda s: {"critical": 0, "high": 1, "normal": 2, "low": 3}.get(s.priority, 2),
+    "frequency": lambda s: s.frequency_days,
+    "status": lambda s: {"overdue": 0, "due_soon": 1, "never_done": 2, "ok": 3}.get(s.status, 4),
+    "category": lambda s: (s.effective_category or "zzz").lower(),
+}
+
+
+def _sort_schedules(schedules, sort_param):
+    """Sort a list of schedules by the given sort parameter (prefix '-' for descending)."""
+    reverse = sort_param.startswith("-")
+    sort_key = sort_param.lstrip("-")
+
+    if sort_key in SORT_KEYS:
+        schedules.sort(key=SORT_KEYS[sort_key], reverse=reverse)
+
+    return schedules
+
+
+@login_required
+def schedule_list(request):
+    qs = Schedule.objects.select_related("asset", "location", "asset__location")
+    qs = _apply_filters(qs, request.GET)
 
     # Annotate with status
     schedules = _annotate_status(qs)
 
     # Filter by computed status
+    status_filter = request.GET.get("status", "")
     if status_filter:
         schedules = [s for s in schedules if s.status == status_filter]
 
     # Sort
     sort = request.GET.get("sort", "name")
-    reverse = sort.startswith("-")
-    sort_key = sort.lstrip("-")
-
-    sort_map = {
-        "name": lambda s: s.name.lower(),
-        "priority": lambda s: {"critical": 0, "high": 1, "normal": 2, "low": 3}.get(s.priority, 2),
-        "frequency": lambda s: s.frequency_days,
-        "status": lambda s: {"overdue": 0, "due_soon": 1, "never_done": 2, "ok": 3}.get(s.status, 4),
-        "category": lambda s: (s.effective_category or "zzz").lower(),
-    }
-
-    if sort_key in sort_map:
-        schedules.sort(key=sort_map[sort_key], reverse=reverse)
+    _sort_schedules(schedules, sort)
 
     # Filter options for the template
     categories = sorted(set(
@@ -87,12 +99,12 @@ def schedule_list(request):
         "locations": locations,
         "priorities": Schedule.PRIORITY_CHOICES,
         "filters": {
-            "category": category,
-            "location": location_id,
-            "priority": priority,
+            "category": request.GET.get("category", ""),
+            "location": request.GET.get("location", ""),
+            "priority": request.GET.get("priority", ""),
             "status": status_filter,
-            "active": active_filter,
-            "q": search,
+            "active": request.GET.get("active", "active"),
+            "q": request.GET.get("q", "").strip(),
             "sort": sort,
         },
     }
@@ -103,6 +115,7 @@ def schedule_list(request):
     return render(request, "schedules/list.html", context)
 
 
+@login_required
 def schedule_detail(request, pk):
     schedule = get_object_or_404(
         Schedule.objects.select_related("asset", "location", "asset__location"),
@@ -113,7 +126,6 @@ def schedule_detail(request, pk):
     last_completed = last_log.completed_at if last_log else None
     schedule.compute_status(last_completed)
 
-    # Work log history
     work_logs = schedule.work_logs.order_by("-completed_at")[:20]
 
     context = {
@@ -123,6 +135,7 @@ def schedule_detail(request, pk):
     return render(request, "schedules/detail.html", context)
 
 
+@login_required
 def schedule_create(request):
     if request.method == "POST":
         form = ScheduleForm(request.POST)
@@ -135,6 +148,7 @@ def schedule_create(request):
     return render(request, "schedules/form.html", {"form": form, "editing": False})
 
 
+@login_required
 def schedule_edit(request, pk):
     schedule = get_object_or_404(Schedule, pk=pk)
 
@@ -153,6 +167,8 @@ def schedule_edit(request, pk):
     })
 
 
+@login_required
+@require_POST
 def schedule_toggle_active(request, pk):
     """HTMX endpoint to toggle a schedule's active state."""
     schedule = get_object_or_404(Schedule, pk=pk)

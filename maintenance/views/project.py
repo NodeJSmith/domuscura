@@ -1,9 +1,11 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
 from maintenance.forms import ProjectForm
 from maintenance.models import Project
 
 
+@login_required
 def project_list(request):
     qs = Project.objects.select_related("asset", "location")
 
@@ -37,6 +39,7 @@ def project_list(request):
     return render(request, "projects/list.html", context)
 
 
+@login_required
 def project_detail(request, pk):
     project = get_object_or_404(
         Project.objects.select_related("asset", "location"), pk=pk
@@ -54,6 +57,7 @@ def project_detail(request, pk):
     })
 
 
+@login_required
 def project_create(request):
     if request.method == "POST":
         form = ProjectForm(request.POST)
@@ -66,6 +70,7 @@ def project_create(request):
     return render(request, "projects/form.html", {"form": form, "editing": False})
 
 
+@login_required
 def project_edit(request, pk):
     project = get_object_or_404(Project, pk=pk)
 

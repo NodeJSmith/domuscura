@@ -1,5 +1,4 @@
 from datetime import timedelta
-from decimal import Decimal
 
 import pytest
 from django.db import IntegrityError
@@ -193,7 +192,7 @@ class TestWorkLog:
             )
 
     def test_ordering(self, db, schedule):
-        wl1 = WorkLog.objects.create(
+        WorkLog.objects.create(
             schedule=schedule, completed_at=timezone.now() - timedelta(days=1)
         )
         wl2 = WorkLog.objects.create(

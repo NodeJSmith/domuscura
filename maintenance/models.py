@@ -4,7 +4,7 @@ from django.utils import timezone
 
 class Location(models.Model):
     name = models.CharField(max_length=200, unique=True)
-    notes = models.TextField(blank=True, null=True, default="")
+    notes = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -42,7 +42,7 @@ class Asset(models.Model):
     purchase_price = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, blank=True
     )
-    notes = models.TextField(blank=True, null=True, default="")
+    notes = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -84,7 +84,7 @@ class Schedule(models.Model):
     ]
 
     name = models.CharField(max_length=200)
-    description = models.TextField(blank=True, null=True, default="")
+    description = models.TextField(blank=True, default="")
     asset = models.ForeignKey(
         Asset, on_delete=models.SET_NULL, null=True, blank=True, related_name="schedules"
     )
@@ -94,7 +94,7 @@ class Schedule(models.Model):
     category = models.CharField(max_length=50, blank=True, default="")
     frequency_days = models.PositiveIntegerField()
     frequency_label = models.CharField(max_length=50, blank=True, default="")
-    season_hint = models.CharField(max_length=50, blank=True, null=True, default="")
+    season_hint = models.CharField(max_length=50, blank=True, default="")
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default="normal")
     impact = models.CharField(
         max_length=20, choices=IMPACT_CHOICES, blank=True, default=""
@@ -105,7 +105,7 @@ class Schedule(models.Model):
     )
     pro_recommended = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
-    notes = models.TextField(blank=True, null=True, default="")
+    notes = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -129,6 +129,18 @@ class Schedule(models.Model):
         if self.asset and self.asset.location:
             return self.asset.location
         return None
+
+    @classmethod
+    def annotate_last_completed(cls, queryset):
+        """Annotate a Schedule queryset with last_completed from WorkLog."""
+        from django.db.models import OuterRef, Subquery
+
+        last_completion = (
+            WorkLog.objects.filter(schedule=OuterRef("pk"))
+            .order_by("-completed_at")
+            .values("completed_at")[:1]
+        )
+        return queryset.annotate(last_completed=Subquery(last_completion))
 
     def compute_status(self, last_completed, now=None):
         """Compute and set status attributes based on last completion time.
@@ -174,7 +186,7 @@ class Project(models.Model):
     ]
 
     name = models.CharField(max_length=200)
-    description = models.TextField(blank=True, null=True, default="")
+    description = models.TextField(blank=True, default="")
     asset = models.ForeignKey(
         Asset, on_delete=models.SET_NULL, null=True, blank=True, related_name="projects"
     )
@@ -193,7 +205,7 @@ class Project(models.Model):
     )
     pro_recommended = models.BooleanField(default=False)
     completed_at = models.DateTimeField(null=True, blank=True)
-    notes = models.TextField(blank=True, null=True, default="")
+    notes = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -240,7 +252,7 @@ class Issue(models.Model):
     ]
 
     summary = models.CharField(max_length=300)
-    details = models.TextField(blank=True, null=True, default="")
+    details = models.TextField(blank=True, default="")
     asset = models.ForeignKey(
         Asset, on_delete=models.SET_NULL, null=True, blank=True, related_name="issues"
     )
@@ -259,7 +271,7 @@ class Issue(models.Model):
     project = models.ForeignKey(
         Project, on_delete=models.SET_NULL, null=True, blank=True, related_name="issues"
     )
-    notes = models.TextField(blank=True, null=True, default="")
+    notes = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -307,7 +319,7 @@ class WorkLog(models.Model):
     performed_by = models.CharField(max_length=200, blank=True, default="")
     cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     duration_minutes = models.PositiveIntegerField(null=True, blank=True)
-    notes = models.TextField(blank=True, null=True, default="")
+    notes = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -370,7 +382,7 @@ class Document(models.Model):
     doc_type = models.CharField(
         max_length=20, choices=DOC_TYPE_CHOICES, blank=True, default=""
     )
-    description = models.TextField(blank=True, null=True, default="")
+    description = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

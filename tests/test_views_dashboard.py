@@ -1,11 +1,4 @@
-import pytest
-from django.test import Client
 from django.urls import reverse
-
-
-@pytest.fixture
-def client():
-    return Client()
 
 
 class TestDashboard:
@@ -53,7 +46,9 @@ class TestDashboard:
 
     def test_dashboard_overdue_sorted_by_most_overdue(self, client, db, location):
         from datetime import timedelta
+
         from django.utils import timezone
+
         from maintenance.models import Schedule, WorkLog
 
         s1 = Schedule.objects.create(

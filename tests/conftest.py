@@ -2,17 +2,30 @@ from datetime import timedelta
 from decimal import Decimal
 
 import pytest
+from django.contrib.auth.models import User
+from django.test import Client
 from django.utils import timezone
 
 from maintenance.models import (
     Asset,
-    Document,
     Issue,
     Location,
     Project,
     Schedule,
     WorkLog,
 )
+
+
+@pytest.fixture
+def user(db):
+    return User.objects.create_user(username="testuser", password="testpass")
+
+
+@pytest.fixture
+def client(user):
+    c = Client()
+    c.force_login(user)
+    return c
 
 
 @pytest.fixture

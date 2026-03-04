@@ -1,9 +1,11 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
 from maintenance.forms import IssueForm
 from maintenance.models import Issue
 
 
+@login_required
 def issue_list(request):
     qs = Issue.objects.select_related("asset", "location", "project")
 
@@ -35,6 +37,7 @@ def issue_list(request):
     return render(request, "issues/list.html", context)
 
 
+@login_required
 def issue_detail(request, pk):
     issue = get_object_or_404(
         Issue.objects.select_related("asset", "location", "project"), pk=pk
@@ -43,6 +46,7 @@ def issue_detail(request, pk):
     return render(request, "issues/detail.html", {"issue": issue})
 
 
+@login_required
 def issue_create(request):
     if request.method == "POST":
         form = IssueForm(request.POST)
@@ -55,6 +59,7 @@ def issue_create(request):
     return render(request, "issues/form.html", {"form": form, "editing": False})
 
 
+@login_required
 def issue_edit(request, pk):
     issue = get_object_or_404(Issue, pk=pk)
 

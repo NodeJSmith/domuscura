@@ -1,13 +1,6 @@
-import pytest
-from django.test import Client
 from django.urls import reverse
 
 from maintenance.models import Asset
-
-
-@pytest.fixture
-def client():
-    return Client()
 
 
 class TestAssetList:

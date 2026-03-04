@@ -1,16 +1,9 @@
 from datetime import timedelta
 
-import pytest
-from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
 from maintenance.models import Project
-
-
-@pytest.fixture
-def client():
-    return Client()
 
 
 class TestProjectList:

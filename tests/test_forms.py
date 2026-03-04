@@ -1,9 +1,6 @@
-from decimal import Decimal
-
-import pytest
-from django.utils import timezone
 
 from django import forms
+from django.utils import timezone
 
 from maintenance.forms import (
     AssetForm,
@@ -12,7 +9,6 @@ from maintenance.forms import (
     ScheduleForm,
     WorkLogForm,
 )
-from maintenance.models import Schedule, Project
 
 
 class TestAssetForm:

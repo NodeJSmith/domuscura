@@ -24,7 +24,7 @@ def base_url(live_server):
 def seeded_db(db):
     """Create a minimal set of test data for e2e tests."""
     loc = Location.objects.create(name="Basement", notes="Lower level")
-    loc2 = Location.objects.create(name="Kitchen", notes="Main floor")
+    Location.objects.create(name="Kitchen", notes="Main floor")
 
     asset = Asset.objects.create(
         name="Central AC",

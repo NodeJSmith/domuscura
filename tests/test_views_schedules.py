@@ -1,13 +1,6 @@
-import pytest
-from django.test import Client
 from django.urls import reverse
 
-from maintenance.models import Location, Schedule, WorkLog
-
-
-@pytest.fixture
-def client():
-    return Client()
+from maintenance.models import Schedule
 
 
 class TestScheduleList:
@@ -176,9 +169,13 @@ class TestScheduleToggleActive:
         assert schedule.active is False
 
     def test_toggle_inactive_to_active(self, client, inactive_schedule):
-        resp = client.post(reverse("schedule_toggle_active", args=[inactive_schedule.pk]))
+        client.post(reverse("schedule_toggle_active", args=[inactive_schedule.pk]))
         inactive_schedule.refresh_from_db()
         assert inactive_schedule.active is True
+
+    def test_toggle_get_not_allowed(self, client, schedule):
+        resp = client.get(reverse("schedule_toggle_active", args=[schedule.pk]))
+        assert resp.status_code == 405
 
     def test_toggle_htmx_returns_partial(self, client, schedule):
         resp = client.post(

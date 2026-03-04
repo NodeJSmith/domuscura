@@ -1,17 +1,10 @@
 from datetime import timedelta
 from decimal import Decimal
 
-import pytest
-from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
-from maintenance.models import Schedule, WorkLog
-
-
-@pytest.fixture
-def client():
-    return Client()
+from maintenance.models import WorkLog
 
 
 class TestSpendingSummary:

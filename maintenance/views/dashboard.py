@@ -1,24 +1,18 @@
-from django.db.models import Subquery, OuterRef
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.utils import timezone
 
-from maintenance.models import Schedule, Project, WorkLog
+from maintenance.models import Project, Schedule
+from maintenance.views.schedule import _annotate_status
 
 
+@login_required
 def dashboard(request):
     now = timezone.now()
     today = now.date()
 
-    # Get the last completed_at for each active schedule
-    last_completion = (
-        WorkLog.objects.filter(schedule=OuterRef("pk"))
-        .order_by("-completed_at")
-        .values("completed_at")[:1]
-    )
-
-    schedules = (
+    qs = (
         Schedule.objects.filter(active=True)
-        .annotate(last_completed=Subquery(last_completion))
         .select_related("asset", "location", "asset__location")
     )
 
@@ -28,8 +22,7 @@ def dashboard(request):
     never_done = []
     ok = []
 
-    for s in schedules:
-        s.compute_status(s.last_completed, now=now)
+    for s in _annotate_status(qs):
         if s.status == "never_done":
             never_done.append(s)
         elif s.status == "overdue":

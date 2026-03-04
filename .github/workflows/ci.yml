@@ -15,6 +15,7 @@ jobs:
         with:
           version: "latest"
       - run: uv sync --frozen --dev
+      - run: uv run ruff check .
       - run: uv run python -m py_compile domuscura/settings.py
       - run: uv run python manage.py check --deploy --fail-level WARNING
         env:
