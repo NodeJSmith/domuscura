@@ -83,6 +83,7 @@ class Command(BaseCommand):
         # Load seed data into a temporary in-memory SQLite database
         # using the original schema (with proper DEFAULT values).
         tmp = sqlite3.connect(":memory:")
+        tmp.row_factory = sqlite3.Row
         tmp.executescript(schema_file.read_text())
 
         # Use our custom parser for seed data (handles '' escaped quotes
@@ -96,39 +97,34 @@ class Command(BaseCommand):
         tmp.commit()
 
         # Copy locations via Django ORM
-        rows = tmp.execute("SELECT name, notes FROM locations").fetchall()
-        for name, notes in rows:
-            Location.objects.create(name=name, notes=notes or "")
+        for row in tmp.execute("SELECT name, notes FROM locations"):
+            Location.objects.create(name=row["name"], notes=row["notes"] or "")
 
         # Copy schedules via Django ORM
-        rows = tmp.execute(
+        for row in tmp.execute(
             """
             SELECT name, description, category, frequency_days, frequency_label,
                    priority, impact, estimated_minutes, estimated_cost,
                    pro_recommended, active, notes
             FROM schedules
             """
-        ).fetchall()
-
-        for row in rows:
-            days = row[3]
-            label = row[4] or ""
+        ):
             frequency, _ = Frequency.objects.get_or_create(
-                days=days,
-                defaults={"label": label},
+                days=row["frequency_days"],
+                defaults={"label": row["frequency_label"] or ""},
             )
             Schedule.objects.create(
-                name=row[0],
-                description=row[1] or "",
-                category=row[2] or "",
+                name=row["name"],
+                description=row["description"] or "",
+                category=row["category"] or "",
                 frequency=frequency,
-                priority=row[5] or "normal",
-                impact=row[6] or "",
-                estimated_minutes=row[7],
-                estimated_cost=row[8],
-                pro_recommended=bool(row[9]),
-                active=bool(row[10]) if row[10] is not None else True,
-                notes=row[11] or "",
+                priority=row["priority"] or "normal",
+                impact=row["impact"] or "",
+                estimated_minutes=row["estimated_minutes"],
+                estimated_cost=row["estimated_cost"],
+                pro_recommended=bool(row["pro_recommended"]),
+                active=bool(row["active"]) if row["active"] is not None else True,
+                notes=row["notes"] or "",
             )
 
         tmp.close()
