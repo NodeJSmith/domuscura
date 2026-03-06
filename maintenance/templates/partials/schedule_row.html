@@ -3,12 +3,12 @@
         <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
         {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
     </td>
-    <td>{{ schedule.effective_category|default:"—" }}</td>
-    <td>
+    <td class="col-mobile-hide">{{ schedule.effective_category|default:"—" }}</td>
+    <td class="col-mobile-hide">
         {{ schedule.frequency_label|default:schedule.frequency_days }}
         {% if not schedule.frequency_label %}d{% endif %}
     </td>
-    <td>{{ schedule.get_priority_display }}</td>
+    <td class="col-mobile-hide">{{ schedule.get_priority_display }}</td>
     <td>{% include "partials/status_badge.html" with status=schedule.schedule_status.status %}</td>
     <td>
         <div style="display: flex; gap: 0.25rem;">

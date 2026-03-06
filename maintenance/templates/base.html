@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -43,12 +43,12 @@
             <li><strong><a href="{% url 'dashboard' %}">Domuscura</a></strong></li>
         </ul>
         <ul>
-            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-            <li><a href="{% url 'schedule_list' %}">Schedules</a></li>
-            <li><a href="{% url 'project_list' %}">Projects</a></li>
-            <li><a href="{% url 'issue_list' %}">Issues</a></li>
-            <li><a href="{% url 'asset_list' %}">Assets</a></li>
-            <li><a href="{% url 'spending_summary' %}">Spending</a></li>
+            <li><a href="{% url 'dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}aria-current="page"{% endif %}>Dashboard</a></li>
+            <li><a href="{% url 'schedule_list' %}" {% if 'schedule' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Schedules</a></li>
+            <li><a href="{% url 'project_list' %}" {% if 'project' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Projects</a></li>
+            <li><a href="{% url 'issue_list' %}" {% if 'issue' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Issues</a></li>
+            <li><a href="{% url 'asset_list' %}" {% if 'asset' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Assets</a></li>
+            <li><a href="{% url 'spending_summary' %}" {% if 'spending' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Spending</a></li>
         </ul>
     </nav>
 

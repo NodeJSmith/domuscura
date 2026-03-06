@@ -36,7 +36,7 @@
                 </select>
             </label>
         </div>
-        <div style="display: flex; gap: 0.5rem;">
+        <div class="filter-actions">
             <button type="submit">Filter</button>
             <a href="{% url 'issue_list' %}" role="button" class="outline secondary">Clear</a>
             <a href="{% url 'issue_create' %}" role="button" class="outline" style="margin-left: auto;">+ New Issue</a>
@@ -67,7 +67,7 @@
                 {% if issue.severity == "safety" %}
                 <mark style="background: var(--pico-del-color); color: white; padding: 0.1rem 0.4rem; font-size: 0.75rem; border-radius: 0.25rem;">{{ issue.get_severity_display }}</mark>
                 {% elif issue.severity == "major" %}
-                <mark style="background: #b35c00; color: white; padding: 0.1rem 0.4rem; font-size: 0.75rem; border-radius: 0.25rem;">{{ issue.get_severity_display }}</mark>
+                <mark style="background: var(--color-severity-major); color: white; padding: 0.1rem 0.4rem; font-size: 0.75rem; border-radius: 0.25rem;">{{ issue.get_severity_display }}</mark>
                 {% else %}
                 <small>{{ issue.get_severity_display }}</small>
                 {% endif %}
@@ -83,7 +83,15 @@
             </td>
         </tr>
         {% empty %}
-        <tr><td colspan="6">No issues match your filters.</td></tr>
+        <tr>
+            <td colspan="6">
+                {% if any_exist %}
+                    No issues match your filters.
+                {% else %}
+                    No issues yet. <a href="{% url 'issue_create' %}">Log your first issue</a> to start tracking problems.
+                {% endif %}
+            </td>
+        </tr>
         {% endfor %}
     </tbody>
 </table>

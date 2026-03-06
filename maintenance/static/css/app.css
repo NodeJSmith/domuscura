@@ -1,5 +1,18 @@
 /* Custom overrides for Domuscura — PicoCSS handles most styling */
 
+/* Semantic color tokens — referenced by status badges and status text throughout the UI.
+   Dark mode overrides ensure WCAG AA contrast is maintained. */
+:root {
+    --color-warning: #e67e22;        /* Due Soon badges and status text */
+    --color-severity-major: #b35c00; /* Major severity badges */
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-warning: #f0a64b;
+        --color-severity-major: #e07820;
+    }
+}
+
 /* Override PicoCSS .grid to wrap instead of cramming all children into one row.
    PicoCSS default is minmax(0%, 1fr) which produces 30+ unreadable columns when
    there are many schedule cards. auto-fill with a sensible min-width wraps cleanly. */
@@ -36,6 +49,33 @@ figure > table {
     .grid {
         grid-template-columns: 1fr;
     }
+
+    /* Hide low-value table columns on mobile so Name + Status + Actions remain readable */
+    .col-mobile-hide {
+        display: none;
+    }
+}
+
+/* Filter action row — compact, aligned button strip */
+.filter-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.filter-actions button,
+.filter-actions a[role="button"] {
+    width: auto;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    margin-bottom: 0;
+}
+
+/* Active nav link */
+nav a[aria-current="page"] {
+    font-weight: bold;
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }
 
 /* HTMX loading state — disable submit during requests */
@@ -46,11 +86,12 @@ button.htmx-request {
     cursor: wait;
 }
 
-/* Action buttons in tables — increased touch target */
+/* Action buttons in tables — 44px minimum touch target */
 .btn-action {
-    padding: 0.375rem 0.75rem;
+    padding: 0.6rem 0.75rem;
     margin: 0;
     font-size: 0.85rem;
+    min-height: 2.75rem;
 }
 
 /* Action buttons in cards — increased touch target */
@@ -58,4 +99,15 @@ button.htmx-request {
     padding: 0.5rem 0.75rem;
     margin: 0;
     font-size: 0.85rem;
+}
+
+/* Dashboard table group header rows (Overdue / Due Soon) */
+.table-group-header td {
+    background: var(--pico-card-sectioning-background-color);
+    padding: 0.35rem var(--pico-spacing);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--pico-muted-border-color);
+}
+.table-group-header:first-child td {
+    border-top: none;
 }

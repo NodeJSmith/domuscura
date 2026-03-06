@@ -1,6 +1,6 @@
 <form hx-post="{% url 'work_log_form' %}"
-      hx-target="{% if schedule %}#schedule-{{ schedule.id }}{% else %}#work-log-form-container{% endif %}"
-      hx-swap="{% if schedule %}outerHTML{% else %}innerHTML{% endif %}"
+      hx-target="#work-log-form-container"
+      hx-swap="{% if schedule %}none{% else %}innerHTML{% endif %}"
       {% if schedule %}@htmx:after-request="if(event.detail.successful) $el.closest('dialog').close()"{% endif %}>
     {% csrf_token %}
 

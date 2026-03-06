@@ -28,6 +28,7 @@ def asset_list(request: HttpRequest) -> HttpResponse:
 
     context = {
         "assets": qs,
+        "any_exist": Asset.objects.exists(),
         "categories": Asset.CATEGORY_CHOICES,
         "locations": locations,
         "filters": {

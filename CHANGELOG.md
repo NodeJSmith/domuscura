@@ -21,9 +21,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 - Work-log modal can be dismissed by clicking the backdrop
 - Submit buttons are disabled during in-flight HTMX requests, preventing duplicate submissions
 - Detail-page related tables (assets, projects) now scroll horizontally on narrow viewports
-- Touch targets on action and card buttons enlarged for usability
+- Touch targets on action and card buttons enlarged to 44px minimum for usability
 - Major severity badge contrast ratio fixed (was ~3.3:1, now ~6.6:1, passes WCAG AA)
 - Forms now display a "Fields marked * are required" legend
+- Dark mode now respects system preference (removed forced light theme)
+- Empty Issues/Projects/Assets pages now show onboarding links instead of misleading "no results" message
+- Active nav link is underlined so current section is always visible
+- Dashboard schedule groups now expand by default instead of collapsing on first visit
+- Filter action buttons (Filter / Clear / + New) are now compact and properly sized
+- Schedule list hides secondary columns (Category, Frequency, Priority) on narrow mobile screens
+- "Mark Done" button on schedule detail page now disables during the request to prevent duplicate logs
 
 ---
 

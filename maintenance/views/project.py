@@ -31,6 +31,7 @@ def project_list(request: HttpRequest) -> HttpResponse:
 
     context = {
         "projects": projects,
+        "any_exist": Project.objects.exists(),
         "statuses": Project.STATUS_CHOICES,
         "priorities": Project.PRIORITY_CHOICES,
         "filters": {

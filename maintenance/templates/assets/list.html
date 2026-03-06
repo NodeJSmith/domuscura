@@ -35,7 +35,7 @@
                 </select>
             </label>
         </div>
-        <div style="display: flex; gap: 0.5rem;">
+        <div class="filter-actions">
             <button type="submit">Filter</button>
             <a href="{% url 'asset_list' %}" role="button" class="outline secondary">Clear</a>
             <a href="{% url 'asset_create' %}" role="button" class="outline" style="margin-left: auto;">+ New Asset</a>
@@ -87,7 +87,15 @@
             </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7">No assets match your filters.</td></tr>
+        <tr>
+            <td colspan="7">
+                {% if any_exist %}
+                    No assets match your filters.
+                {% else %}
+                    No assets yet. <a href="{% url 'asset_create' %}">Add your first asset</a> to track appliances, systems, and equipment.
+                {% endif %}
+            </td>
+        </tr>
         {% endfor %}
     </tbody>
 </table>

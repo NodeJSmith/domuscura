@@ -7,7 +7,7 @@
     <ul>
         <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
         <li><a href="{% url 'schedule_list' %}">Schedules</a></li>
-        <li>{{ schedule.name }}</li>
+        <li aria-current="page">{{ schedule.name }}</li>
     </ul>
 </nav>
 
@@ -76,10 +76,11 @@
                     <form hx-post="{% url 'quick_log' schedule.id %}"
                           hx-target="body"
                           hx-swap="none"
-                          hx-on::after-request="window.location.reload()"
+                          hx-on::after-request="if(event.detail.successful) window.location.reload()"
                           style="margin: 0;">
                         {% csrf_token %}
-                        <button type="submit" style="padding: 0.25rem 0.75rem; margin: 0;">
+                        <button type="submit" style="padding: 0.25rem 0.75rem; margin: 0;"
+                                hx-disabled-elt="this">
                             Mark Done
                         </button>
                     </form>
@@ -89,7 +90,7 @@
             {% if schedule.schedule_status.status == "overdue" %}
             <p><strong style="color: var(--pico-del-color);">Overdue</strong> by {{ schedule.schedule_status.days_overdue }} day{{ schedule.schedule_status.days_overdue|pluralize }}</p>
             {% elif schedule.schedule_status.status == "due_soon" %}
-            <p><strong style="color: #e67e22;">Due soon</strong> — {{ schedule.schedule_status.days_until_due }} day{{ schedule.schedule_status.days_until_due|pluralize }} remaining</p>
+            <p><strong style="color: var(--color-warning);">Due soon</strong> — {{ schedule.schedule_status.days_until_due }} day{{ schedule.schedule_status.days_until_due|pluralize }} remaining</p>
             {% elif schedule.schedule_status.status == "ok" %}
             <p><strong style="color: var(--pico-ins-color);">Up to date</strong> — due {{ schedule.schedule_status.next_due_date|date:"M j, Y" }}</p>
             {% elif schedule.schedule_status.status == "never_done" %}

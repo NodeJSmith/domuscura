@@ -29,6 +29,7 @@ def issue_list(request: HttpRequest) -> HttpResponse:
 
     context = {
         "issues": qs,
+        "any_exist": Issue.objects.exists(),
         "statuses": Issue.STATUS_CHOICES,
         "severities": Issue.SEVERITY_CHOICES,
         "filters": {
