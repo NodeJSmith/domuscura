@@ -226,17 +226,18 @@ figure > table {
     font-size: 0.85rem;
 }
 
-/* Global: all form buttons are auto-width — PicoCSS stretches them to 100% by default */
-form button,
-form a[role="button"] {
-    width: auto;
-}
-
-/* Form save/cancel row — flex container for Save + Cancel side by side */
+/* Form save/cancel row — flex container for Save + Cancel side by side.
+   !important is required: PicoCSS sets width:100% on button elements and wins on
+   specificity without it. This rule is intentionally narrow (only .form-actions). */
 .form-actions {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
+}
+.form-actions button,
+.form-actions a[role="button"] {
+    width: auto !important;
+    margin-bottom: 0;
 }
 
 /* ─── Filter strip ───────────────────────────────────────────────────────── */
