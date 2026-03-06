@@ -9,6 +9,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 ## [Unreleased]
 
 ### Added
+- Schedule form: preset picker (Weekly / Monthly / Annually / etc.) auto-fills frequency fields — no more mental arithmetic
+- Spending page: empty state explanation when no costs have been recorded yet
+
+### Fixed
+- New Issue form: Discovered Date now defaults to today instead of blank
+
+### Added
 - Responsive CSS: schedule card grids now wrap instead of cramming into a single unreadable row (#2)
 - Responsive tables: list views scroll horizontally on narrow viewports instead of overflowing (#2)
 - `ScheduleStatus` named tuple — `Schedule.compute_status()` is now a pure function with no side effects (#2)

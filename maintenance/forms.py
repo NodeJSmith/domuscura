@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
 from django import forms
@@ -121,6 +121,8 @@ class IssueForm(forms.ModelForm):
         self.fields["location"].empty_label = "Unspecified"
         self.fields["source"].empty_label = "Not recorded"
         self.fields["project"].empty_label = "No linked project"
+        if not self.instance.pk:
+            self.fields["discovered_at"].initial = date.today()
 
 
 class ScheduleForm(forms.ModelForm):

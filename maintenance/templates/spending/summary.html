@@ -9,7 +9,7 @@
 </hgroup>
 
 <!-- Summary cards -->
-<div class="grid">
+<div class="spending-summary">
     <article>
         <header><strong>Last 30 Days</strong></header>
         <h2>${{ stats.last_30.total_cost }}</h2>
@@ -31,6 +31,12 @@
         <small>{{ stats.all_time.total_entries }} entries &middot; {{ stats.all_time.total_minutes }} min logged</small>
     </article>
 </div>
+
+{% if not has_any_costs %}
+<article>
+    <p>No spending recorded yet. Costs are tracked automatically when you log work and fill in the <strong>Cost</strong> field. Try logging work on any schedule or project.</p>
+</article>
+{% endif %}
 
 {% if months %}
 <article>

@@ -95,5 +95,6 @@ def spending_summary(request: HttpRequest) -> HttpResponse:
         "categories": categories,
         "recent_logs": recent_logs,
         "months": months,
+        "has_any_costs": WorkLog.objects.filter(cost__gt=0).exists(),
     }
     return render(request, "spending/summary.html", context)

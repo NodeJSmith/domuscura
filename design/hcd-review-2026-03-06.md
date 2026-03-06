@@ -40,7 +40,7 @@ Their goal: log that they did something, or find out what's overdue. Fast.
 - A number field + unit selector: `[1] [year ▾]` → renders as "Annually"
 - Or: keep the raw field but add a live preview label below it: "= every 12 months"
 The Frequency Label field already exists for display — tie it to a smart default based on the numeric input.
-**Status:** Open
+**Status:** Done — added Alpine.js preset select above the raw fields; selecting a preset auto-fills both frequency_days and frequency_label; raw fields remain editable for custom values
 
 ---
 
@@ -60,7 +60,7 @@ The Frequency Label field already exists for display — tie it to a smart defau
 **File:** `maintenance/templates/issues/issue_form.html` (new issue form)
 **Harm:** Issues are almost always logged the day they're discovered. An empty date field in the common case creates unnecessary work. It also means users who skip the field will have undated issues.
 **Fix:** Default `discovered_date` to `date.today()` in the form's `__init__` or the view context. The user can clear it if the issue was found earlier.
-**Status:** Open
+**Status:** Done — `IssueForm.__init__` sets `discovered_at` initial to `date.today()` for new instances
 
 ---
 
@@ -100,7 +100,7 @@ The Frequency Label field already exists for display — tie it to a smart defau
 **File:** `maintenance/templates/spending/dashboard.html`
 **Harm:** A new user sees 12 rows of "$0, 0 entries". There is no explanation that spending data comes from work logs with a cost, no call to action, and no indication that the page will ever show anything useful. The page appears broken.
 **Fix:** Add a conditional empty state: if `total_all_time == 0`, show a brief explanation — "Spending is tracked automatically when you log work with a cost. Try logging work on any schedule."
-**Status:** Open
+**Status:** Done — spending view passes `has_any_costs`; template shows explanation banner when no cost data exists
 
 ---
 
