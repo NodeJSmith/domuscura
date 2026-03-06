@@ -41,9 +41,9 @@ def spending_summary(request: HttpRequest) -> HttpResponse:
             "total_minutes": agg["total_minutes"] or 0,
         }
 
-    # Category breakdown (YTD) via schedule or project category
+    # Category breakdown (YTD) — only entries with actual cost
     category_qs = (
-        WorkLog.objects.filter(completed_at__gte=year_start)
+        WorkLog.objects.filter(completed_at__gte=year_start, cost__gt=0)
         .values("schedule__category")
         .annotate(total=Sum("cost"), count=Count("id"))
         .order_by("-total")
@@ -53,9 +53,10 @@ def spending_summary(request: HttpRequest) -> HttpResponse:
         for row in category_qs
     ]
 
-    # Recent work logs
+    # Recent work logs with cost only
     recent_logs = (
-        WorkLog.objects.select_related("schedule", "project", "asset")
+        WorkLog.objects.filter(cost__gt=0)
+        .select_related("schedule", "project", "asset")
         .order_by("-completed_at")[:25]
     )
 
@@ -82,6 +83,7 @@ def spending_summary(request: HttpRequest) -> HttpResponse:
         agg = WorkLog.objects.filter(
             completed_at__gte=month_start,
             completed_at__lt=month_end,
+            cost__gt=0,
         ).aggregate(total=Sum("cost"), count=Count("id"))
 
         months.append({

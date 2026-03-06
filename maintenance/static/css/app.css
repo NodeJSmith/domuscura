@@ -226,15 +226,17 @@ figure > table {
     font-size: 0.85rem;
 }
 
-/* Form save/cancel row — inline, auto-width (prevents PicoCSS width:100% default) */
+/* Global: all form buttons are auto-width — PicoCSS stretches them to 100% by default */
+form button,
+form a[role="button"] {
+    width: auto;
+}
+
+/* Form save/cancel row — flex container for Save + Cancel side by side */
 .form-actions {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
-}
-.form-actions button,
-.form-actions a[role="button"] {
-    width: auto;
 }
 
 /* ─── Filter strip ───────────────────────────────────────────────────────── */

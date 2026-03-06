@@ -2,6 +2,7 @@
     <td>
         <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
         {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
+        {% if schedule.season_hint %}<br><small style="color: var(--dm-ink-muted);">{{ schedule.season_hint }}</small>{% endif %}
     </td>
     <td class="col-mobile-hide">{{ schedule.effective_category|default:"—" }}</td>
     <td class="col-mobile-hide">
