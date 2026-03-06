@@ -14,7 +14,7 @@
 <hgroup>
     <h1>
         {{ schedule.name }}
-        {% include "partials/status_badge.html" with status=schedule.status %}
+        {% include "partials/status_badge.html" with status=schedule.schedule_status.status %}
     </h1>
     <p>
         {{ schedule.frequency_label|default:schedule.frequency_days }}
@@ -86,18 +86,18 @@
                 </div>
             </header>
 
-            {% if schedule.status == "overdue" %}
-            <p><strong style="color: var(--pico-del-color);">Overdue</strong> by {{ schedule.days_overdue }} day{{ schedule.days_overdue|pluralize }}</p>
-            {% elif schedule.status == "due_soon" %}
-            <p><strong style="color: #e67e22;">Due soon</strong> — {{ schedule.days_until_due }} day{{ schedule.days_until_due|pluralize }} remaining</p>
-            {% elif schedule.status == "ok" %}
-            <p><strong style="color: var(--pico-ins-color);">Up to date</strong> — due {{ schedule.next_due_date|date:"M j, Y" }}</p>
-            {% elif schedule.status == "never_done" %}
+            {% if schedule.schedule_status.status == "overdue" %}
+            <p><strong style="color: var(--pico-del-color);">Overdue</strong> by {{ schedule.schedule_status.days_overdue }} day{{ schedule.schedule_status.days_overdue|pluralize }}</p>
+            {% elif schedule.schedule_status.status == "due_soon" %}
+            <p><strong style="color: #e67e22;">Due soon</strong> — {{ schedule.schedule_status.days_until_due }} day{{ schedule.schedule_status.days_until_due|pluralize }} remaining</p>
+            {% elif schedule.schedule_status.status == "ok" %}
+            <p><strong style="color: var(--pico-ins-color);">Up to date</strong> — due {{ schedule.schedule_status.next_due_date|date:"M j, Y" }}</p>
+            {% elif schedule.schedule_status.status == "never_done" %}
             <p><strong>Never completed</strong> — no work logs yet</p>
             {% endif %}
 
-            {% if schedule.last_completed %}
-            <p><small>Last done: {{ schedule.last_completed|date:"M j, Y g:i A" }} ({{ schedule.days_since_last }} day{{ schedule.days_since_last|pluralize }} ago)</small></p>
+            {% if schedule.schedule_status.last_completed %}
+            <p><small>Last done: {{ schedule.schedule_status.last_completed|date:"M j, Y g:i A" }} ({{ schedule.schedule_status.days_since_last }} day{{ schedule.schedule_status.days_since_last|pluralize }} ago)</small></p>
             {% endif %}
         </article>
     </div>

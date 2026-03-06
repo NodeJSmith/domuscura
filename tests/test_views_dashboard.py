@@ -19,17 +19,17 @@ class TestDashboard:
     def test_dashboard_shows_overdue(self, client, overdue_schedule):
         resp = client.get(reverse("dashboard"))
         assert len(resp.context["overdue"]) == 1
-        assert resp.context["overdue"][0].status == "overdue"
+        assert resp.context["overdue"][0].schedule_status.status == "overdue"
 
     def test_dashboard_shows_due_soon(self, client, due_soon_schedule):
         resp = client.get(reverse("dashboard"))
         assert len(resp.context["due_soon"]) == 1
-        assert resp.context["due_soon"][0].status == "due_soon"
+        assert resp.context["due_soon"][0].schedule_status.status == "due_soon"
 
     def test_dashboard_shows_ok(self, client, schedule_with_log):
         resp = client.get(reverse("dashboard"))
         assert len(resp.context["ok"]) == 1
-        assert resp.context["ok"][0].status == "ok"
+        assert resp.context["ok"][0].schedule_status.status == "ok"
 
     def test_dashboard_excludes_inactive(self, client, inactive_schedule):
         resp = client.get(reverse("dashboard"))

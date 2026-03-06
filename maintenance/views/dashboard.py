@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 
@@ -7,7 +10,7 @@ from maintenance.views.schedule import _annotate_status
 
 
 @login_required
-def dashboard(request):
+def dashboard(request: HttpRequest) -> HttpResponse:
     now = timezone.now()
     today = now.date()
 
@@ -23,18 +26,18 @@ def dashboard(request):
     ok = []
 
     for s in _annotate_status(qs):
-        if s.status == "never_done":
+        if s.schedule_status.status == "never_done":
             never_done.append(s)
-        elif s.status == "overdue":
+        elif s.schedule_status.status == "overdue":
             overdue.append(s)
-        elif s.status == "due_soon":
+        elif s.schedule_status.status == "due_soon":
             due_soon.append(s)
         else:
             ok.append(s)
 
     # Sort: overdue by most overdue first, due_soon by soonest first
-    overdue.sort(key=lambda s: s.days_overdue, reverse=True)
-    due_soon.sort(key=lambda s: s.days_until_due)
+    overdue.sort(key=lambda s: s.schedule_status.days_overdue, reverse=True)
+    due_soon.sort(key=lambda s: s.schedule_status.days_until_due)
 
     # Sort never_done by priority (critical first)
     priority_order = {"critical": 0, "high": 1, "normal": 2, "low": 3}

@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from maintenance.forms import ProjectForm
@@ -6,7 +9,7 @@ from maintenance.models import Project
 
 
 @login_required
-def project_list(request):
+def project_list(request: HttpRequest) -> HttpResponse:
     qs = Project.objects.select_related("asset", "location")
 
     # Filters
@@ -40,7 +43,7 @@ def project_list(request):
 
 
 @login_required
-def project_detail(request, pk):
+def project_detail(request: HttpRequest, pk: int) -> HttpResponse:
     project = get_object_or_404(
         Project.objects.select_related("asset", "location"), pk=pk
     )
@@ -58,7 +61,7 @@ def project_detail(request, pk):
 
 
 @login_required
-def project_create(request):
+def project_create(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = ProjectForm(request.POST)
         if form.is_valid():
@@ -71,7 +74,7 @@ def project_create(request):
 
 
 @login_required
-def project_edit(request, pk):
+def project_edit(request: HttpRequest, pk: int) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
 
     if request.method == "POST":

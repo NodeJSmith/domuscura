@@ -1,5 +1,10 @@
+from __future__ import annotations
+
+from typing import Any, Callable
+
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Q, QuerySet
+from django.http import HttpRequest, HttpResponse, QueryDict
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -8,19 +13,19 @@ from maintenance.forms import ScheduleForm
 from maintenance.models import Location, Schedule
 
 
-def _annotate_status(queryset):
+def _annotate_status(queryset: QuerySet[Schedule]) -> list[Schedule]:
     """Annotate a queryset of schedules with last_completed and compute status."""
     now = timezone.now()
     queryset = Schedule.annotate_last_completed(queryset)
 
     result = []
     for s in queryset:
-        s.compute_status(s.last_completed, now=now)
+        s.schedule_status = s.compute_status(s.last_completed, now=now)
         result.append(s)
     return result
 
 
-def _apply_filters(qs, params):
+def _apply_filters(qs: QuerySet[Schedule], params: QueryDict) -> QuerySet[Schedule]:
     """Apply query-string filters to a Schedule queryset."""
     active_filter = params.get("active", "active")
     if active_filter == "active":
@@ -49,16 +54,16 @@ def _apply_filters(qs, params):
     return qs
 
 
-SORT_KEYS = {
+SORT_KEYS: dict[str, Callable[[Schedule], Any]] = {
     "name": lambda s: s.name.lower(),
     "priority": lambda s: {"critical": 0, "high": 1, "normal": 2, "low": 3}.get(s.priority, 2),
     "frequency": lambda s: s.frequency_days,
-    "status": lambda s: {"overdue": 0, "due_soon": 1, "never_done": 2, "ok": 3}.get(s.status, 4),
+    "status": lambda s: {"overdue": 0, "due_soon": 1, "never_done": 2, "ok": 3}.get(s.schedule_status.status, 4),
     "category": lambda s: (s.effective_category or "zzz").lower(),
 }
 
 
-def _sort_schedules(schedules, sort_param):
+def _sort_schedules(schedules: list[Schedule], sort_param: str) -> list[Schedule]:
     """Sort a list of schedules by the given sort parameter (prefix '-' for descending)."""
     reverse = sort_param.startswith("-")
     sort_key = sort_param.lstrip("-")
@@ -70,7 +75,7 @@ def _sort_schedules(schedules, sort_param):
 
 
 @login_required
-def schedule_list(request):
+def schedule_list(request: HttpRequest) -> HttpResponse:
     qs = Schedule.objects.select_related("asset", "location", "asset__location")
     qs = _apply_filters(qs, request.GET)
 
@@ -80,7 +85,7 @@ def schedule_list(request):
     # Filter by computed status
     status_filter = request.GET.get("status", "")
     if status_filter:
-        schedules = [s for s in schedules if s.status == status_filter]
+        schedules = [s for s in schedules if s.schedule_status.status == status_filter]
 
     # Sort
     sort = request.GET.get("sort", "name")
@@ -116,7 +121,7 @@ def schedule_list(request):
 
 
 @login_required
-def schedule_detail(request, pk):
+def schedule_detail(request: HttpRequest, pk: int) -> HttpResponse:
     schedule = get_object_or_404(
         Schedule.objects.select_related("asset", "location", "asset__location"),
         pk=pk,
@@ -124,7 +129,7 @@ def schedule_detail(request, pk):
 
     last_log = schedule.work_logs.order_by("-completed_at").first()
     last_completed = last_log.completed_at if last_log else None
-    schedule.compute_status(last_completed)
+    schedule.schedule_status = schedule.compute_status(last_completed)
 
     work_logs = schedule.work_logs.order_by("-completed_at")[:20]
 
@@ -136,7 +141,7 @@ def schedule_detail(request, pk):
 
 
 @login_required
-def schedule_create(request):
+def schedule_create(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = ScheduleForm(request.POST)
         if form.is_valid():
@@ -149,7 +154,7 @@ def schedule_create(request):
 
 
 @login_required
-def schedule_edit(request, pk):
+def schedule_edit(request: HttpRequest, pk: int) -> HttpResponse:
     schedule = get_object_or_404(Schedule, pk=pk)
 
     if request.method == "POST":
@@ -169,7 +174,7 @@ def schedule_edit(request, pk):
 
 @login_required
 @require_POST
-def schedule_toggle_active(request, pk):
+def schedule_toggle_active(request: HttpRequest, pk: int) -> HttpResponse:
     """HTMX endpoint to toggle a schedule's active state."""
     schedule = get_object_or_404(Schedule, pk=pk)
     schedule.active = not schedule.active
@@ -179,7 +184,7 @@ def schedule_toggle_active(request, pk):
         # Return the updated row
         last_log = schedule.work_logs.order_by("-completed_at").first()
         last_completed = last_log.completed_at if last_log else None
-        schedule.compute_status(last_completed)
+        schedule.schedule_status = schedule.compute_status(last_completed)
         return render(request, "partials/schedule_row.html", {"schedule": schedule})
 
     return redirect("schedule_list")

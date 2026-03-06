@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 from datetime import timedelta
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Sum
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 
@@ -9,7 +12,7 @@ from maintenance.models import WorkLog
 
 
 @login_required
-def spending_summary(request):
+def spending_summary(request: HttpRequest) -> HttpResponse:
     now = timezone.now()
     year_start = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
 

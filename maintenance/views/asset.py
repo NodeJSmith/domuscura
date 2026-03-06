@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from maintenance.forms import AssetForm
@@ -6,7 +9,7 @@ from maintenance.models import Asset, Location
 
 
 @login_required
-def asset_list(request):
+def asset_list(request: HttpRequest) -> HttpResponse:
     qs = Asset.objects.select_related("location")
 
     # Filters
@@ -37,7 +40,7 @@ def asset_list(request):
 
 
 @login_required
-def asset_detail(request, pk):
+def asset_detail(request: HttpRequest, pk: int) -> HttpResponse:
     asset = get_object_or_404(Asset.objects.select_related("location"), pk=pk)
 
     schedules = asset.schedules.filter(active=True)
@@ -55,7 +58,7 @@ def asset_detail(request, pk):
 
 
 @login_required
-def asset_create(request):
+def asset_create(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = AssetForm(request.POST)
         if form.is_valid():
@@ -68,7 +71,7 @@ def asset_create(request):
 
 
 @login_required
-def asset_edit(request, pk):
+def asset_edit(request: HttpRequest, pk: int) -> HttpResponse:
     asset = get_object_or_404(Asset, pk=pk)
 
     if request.method == "POST":

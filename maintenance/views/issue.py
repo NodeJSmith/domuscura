@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from maintenance.forms import IssueForm
@@ -6,7 +9,7 @@ from maintenance.models import Issue
 
 
 @login_required
-def issue_list(request):
+def issue_list(request: HttpRequest) -> HttpResponse:
     qs = Issue.objects.select_related("asset", "location", "project")
 
     # Filters
@@ -38,7 +41,7 @@ def issue_list(request):
 
 
 @login_required
-def issue_detail(request, pk):
+def issue_detail(request: HttpRequest, pk: int) -> HttpResponse:
     issue = get_object_or_404(
         Issue.objects.select_related("asset", "location", "project"), pk=pk
     )
@@ -47,7 +50,7 @@ def issue_detail(request, pk):
 
 
 @login_required
-def issue_create(request):
+def issue_create(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = IssueForm(request.POST)
         if form.is_valid():
@@ -60,7 +63,7 @@ def issue_create(request):
 
 
 @login_required
-def issue_edit(request, pk):
+def issue_edit(request: HttpRequest, pk: int) -> HttpResponse:
     issue = get_object_or_404(Issue, pk=pk)
 
     if request.method == "POST":

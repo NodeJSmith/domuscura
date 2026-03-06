@@ -1,3 +1,8 @@
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Any
+
 from django import forms
 from django.utils import timezone
 
@@ -28,7 +33,7 @@ class AssetForm(forms.ModelForm):
             "expected_lifespan_years": forms.NumberInput(attrs={"min": "0"}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.fields["location"].required = False
         self.fields["category"].required = False
@@ -66,7 +71,7 @@ class ProjectForm(forms.ModelForm):
             "estimated_cost": forms.NumberInput(attrs={"step": "0.01", "min": "0"}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.fields["description"].required = False
         self.fields["asset"].required = False
@@ -99,7 +104,7 @@ class IssueForm(forms.ModelForm):
             "discovered_at": forms.DateInput(attrs={"type": "date"}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.fields["details"].required = False
         self.fields["asset"].required = False
@@ -138,7 +143,7 @@ class ScheduleForm(forms.ModelForm):
             "frequency_days": forms.NumberInput(attrs={"min": "1"}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.fields["description"].required = False
         self.fields["asset"].required = False
@@ -175,7 +180,7 @@ class WorkLogForm(forms.ModelForm):
             "duration_minutes": forms.NumberInput(attrs={"min": "0"}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         # Make most fields optional in the form
         self.fields["schedule"].required = False
@@ -187,13 +192,13 @@ class WorkLogForm(forms.ModelForm):
         self.fields["duration_minutes"].required = False
         self.fields["notes"].required = False
 
-    def clean_completed_at(self):
+    def clean_completed_at(self) -> datetime:
         val = self.cleaned_data.get("completed_at")
         if not val:
             return timezone.now()
         return val
 
-    def clean(self):
+    def clean(self) -> dict[str, Any]:
         cleaned = super().clean()
         schedule = cleaned.get("schedule")
         project = cleaned.get("project")

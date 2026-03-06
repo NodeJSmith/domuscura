@@ -3,7 +3,7 @@
         <div style="display: flex; justify-content: space-between; align-items: start;">
             <div>
                 <strong>{{ schedule.name }}</strong>
-                {% include "partials/status_badge.html" with status=schedule.status %}
+                {% include "partials/status_badge.html" with status=schedule.schedule_status.status %}
             </div>
             <small>{{ schedule.effective_category }}</small>
         </div>
@@ -17,13 +17,13 @@
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <small>
                 {{ schedule.frequency_label|default:schedule.frequency_days }}
-                {% if schedule.status == "overdue" %}
-                    &middot; {{ schedule.days_overdue }} day{{ schedule.days_overdue|pluralize }} overdue
-                {% elif schedule.status == "due_soon" %}
-                    &middot; Due in {{ schedule.days_until_due }} day{{ schedule.days_until_due|pluralize }}
-                {% elif schedule.status == "ok" %}
-                    &middot; Due {{ schedule.next_due_date|date:"M j" }}
-                {% elif schedule.status == "never_done" %}
+                {% if schedule.schedule_status.status == "overdue" %}
+                    &middot; {{ schedule.schedule_status.days_overdue }} day{{ schedule.schedule_status.days_overdue|pluralize }} overdue
+                {% elif schedule.schedule_status.status == "due_soon" %}
+                    &middot; Due in {{ schedule.schedule_status.days_until_due }} day{{ schedule.schedule_status.days_until_due|pluralize }}
+                {% elif schedule.schedule_status.status == "ok" %}
+                    &middot; Due {{ schedule.schedule_status.next_due_date|date:"M j" }}
+                {% elif schedule.schedule_status.status == "never_done" %}
                     &middot; Not yet completed
                 {% endif %}
                 {% if schedule.priority == "critical" or schedule.priority == "high" %}

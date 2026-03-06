@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -10,7 +12,7 @@ from maintenance.models import Schedule, WorkLog
 
 @login_required
 @require_POST
-def quick_log(request, schedule_id):
+def quick_log(request: HttpRequest, schedule_id: int) -> HttpResponse:
     """Mark a schedule as done right now, with no extra details."""
     schedule = get_object_or_404(Schedule, pk=schedule_id)
 
@@ -21,12 +23,12 @@ def quick_log(request, schedule_id):
     )
 
     # Return updated schedule card partial for HTMX swap
-    schedule.compute_status(work_log.completed_at)
+    schedule.schedule_status = schedule.compute_status(work_log.completed_at)
     return render(request, "partials/schedule_card.html", {"schedule": schedule})
 
 
 @login_required
-def log_work_form(request, schedule_id=None):
+def log_work_form(request: HttpRequest, schedule_id: int | None = None) -> HttpResponse:
     """Show or process the full work log form."""
     schedule = None
     if schedule_id:
@@ -39,7 +41,9 @@ def log_work_form(request, schedule_id=None):
 
             # If this was for a schedule, return updated card
             if work_log.schedule:
-                work_log.schedule.compute_status(work_log.completed_at)
+                work_log.schedule.schedule_status = work_log.schedule.compute_status(
+                    work_log.completed_at
+                )
                 return render(
                     request,
                     "partials/schedule_card.html",

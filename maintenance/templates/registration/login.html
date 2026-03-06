@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Log In — Domuscura{% endblock %}
+
+{% block content %}
+<article style="max-width: 400px; margin: 4rem auto;">
+    <header><h2>Log In</h2></header>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <label>
+                {{ field.label }}
+                {{ field }}
+                {% if field.errors %}
+                    <small style="color: var(--pico-del-color);">{{ field.errors|join:", " }}</small>
+                {% endif %}
+            </label>
+        {% endfor %}
+        {% if form.non_field_errors %}
+            <p style="color: var(--pico-del-color);">{{ form.non_field_errors|join:", " }}</p>
+        {% endif %}
+        <button type="submit">Log In</button>
+    </form>
+</article>
+{% endblock %}

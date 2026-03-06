@@ -1,1 +1,39 @@
 /* Custom overrides for Domuscura — PicoCSS handles most styling */
+
+/* Override PicoCSS .grid to wrap instead of cramming all children into one row.
+   PicoCSS default is minmax(0%, 1fr) which produces 30+ unreadable columns when
+   there are many schedule cards. auto-fill with a sensible min-width wraps cleanly. */
+.grid {
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+}
+
+/* Responsive table scrolling — prevents horizontal overflow on narrow viewports */
+figure {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Keep table columns from wrapping mid-cell (except the name/title column) */
+table th,
+table td {
+    white-space: nowrap;
+}
+
+/* Allow the first column (name/title) to wrap naturally */
+table th:first-child,
+table td:first-child {
+    white-space: normal;
+    min-width: 8rem;
+}
+
+/* Ensure tables are wide enough to scroll rather than collapsing */
+figure > table {
+    min-width: 32rem;
+}
+
+@media (max-width: 600px) {
+    /* Single-column card layout on small screens */
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
@@ -7,6 +8,9 @@
 
     <!-- PicoCSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+
+    <!-- App overrides (loads after PicoCSS to ensure precedence) -->
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
 
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>

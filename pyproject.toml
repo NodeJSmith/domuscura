@@ -34,3 +34,9 @@ addopts = "-m 'not e2e'"
 markers = [
     "e2e: end-to-end browser tests (require Playwright)",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-django>=4.12.0",
+]

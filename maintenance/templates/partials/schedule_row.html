@@ -9,7 +9,7 @@
         {% if not schedule.frequency_label %}d{% endif %}
     </td>
     <td>{{ schedule.get_priority_display }}</td>
-    <td>{% include "partials/status_badge.html" with status=schedule.status %}</td>
+    <td>{% include "partials/status_badge.html" with status=schedule.schedule_status.status %}</td>
     <td>
         <div style="display: flex; gap: 0.25rem;">
             <form hx-post="{% url 'quick_log' schedule.id %}"
