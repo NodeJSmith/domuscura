@@ -16,6 +16,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 ### Changed
 - Type annotations added to all view functions, model methods, and form methods (#2)
 
+### Fixed
+- Failed HTMX requests now show an error toast instead of silently ignoring errors
+- Work-log modal can be dismissed by clicking the backdrop
+- Submit buttons are disabled during in-flight HTMX requests, preventing duplicate submissions
+- Detail-page related tables (assets, projects) now scroll horizontally on narrow viewports
+- Touch targets on action and card buttons enlarged for usability
+- Major severity badge contrast ratio fixed (was ~3.3:1, now ~6.6:1, passes WCAG AA)
+- Forms now display a "Fields marked * are required" legend
+
 ---
 
 ## [0.1.0] — 2026-03-03

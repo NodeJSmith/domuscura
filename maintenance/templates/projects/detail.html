@@ -68,6 +68,7 @@
         {% if issues %}
         <article>
             <header><strong>Related Issues</strong></header>
+            <figure>
             <table>
                 <tbody>
                     {% for issue in issues %}
@@ -79,12 +80,14 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </figure>
         </article>
         {% endif %}
 
         {% if work_logs %}
         <article>
             <header><strong>Work Log</strong></header>
+            <figure>
             <table>
                 <tbody>
                     {% for log in work_logs %}
@@ -97,6 +100,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </figure>
         </article>
         {% endif %}
     </div>

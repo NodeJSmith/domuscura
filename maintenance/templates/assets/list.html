@@ -81,8 +81,7 @@
             <td>{% if asset.age_years is not None %}{{ asset.age_years }}y{% else %}—{% endif %}</td>
             <td>
                 <a href="{% url 'asset_edit' asset.id %}"
-                   role="button" class="outline secondary"
-                   style="padding: 0.15rem 0.5rem; margin: 0; font-size: 0.8rem;">
+                   role="button" class="outline secondary btn-action">
                     Edit
                 </a>
             </td>

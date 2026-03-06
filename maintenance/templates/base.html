@@ -60,5 +60,25 @@
         <hr>
         <small>Domuscura &mdash; domus (house) + cura (care)</small>
     </footer>
+
+    <!-- Error toast for failed HTMX requests -->
+    <div x-data="{ visible: false, message: '' }"
+         @show-error.window="message = $event.detail.message; visible = true; setTimeout(() => visible = false, 4000)"
+         x-show="visible"
+         x-transition
+         role="alert"
+         aria-live="polite"
+         style="position:fixed;bottom:1rem;right:1rem;z-index:200;background:var(--pico-del-color);color:white;padding:0.75rem 1.25rem;border-radius:0.25rem;max-width:20rem;box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+        <span x-text="message"></span>
+    </div>
+    <script>
+        ['htmx:responseError', 'htmx:sendError'].forEach(function(ev) {
+            document.body.addEventListener(ev, function() {
+                window.dispatchEvent(new CustomEvent('show-error', {
+                    detail: { message: 'Something went wrong. Please try again.' }
+                }));
+            });
+        });
+    </script>
 </body>
 </html>

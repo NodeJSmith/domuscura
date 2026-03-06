@@ -31,8 +31,7 @@
                 {% endif %}
             </small>
             <div style="display: flex; gap: 0.5rem;">
-                <button class="outline secondary"
-                        style="padding: 0.25rem 0.75rem; margin: 0; font-size: 0.85rem;"
+                <button class="outline secondary btn-card"
                         hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
                         hx-target="#work-log-form-container"
                         hx-swap="innerHTML"
@@ -44,8 +43,7 @@
                       hx-swap="outerHTML"
                       style="margin: 0;">
                     {% csrf_token %}
-                    <button type="submit"
-                            style="padding: 0.25rem 0.75rem; margin: 0; font-size: 0.85rem;">
+                    <button type="submit" class="btn-card">
                         Done
                     </button>
                 </form>

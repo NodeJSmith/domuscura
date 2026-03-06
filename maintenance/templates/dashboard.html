@@ -109,7 +109,8 @@
 <dialog id="work-log-modal" x-data="{ open: false }"
         x-bind:open="open"
         @work-log-open.window="open = true; $el.showModal()"
-        @close="open = false">
+        @close="open = false"
+        @click.self="$el.close()">
     <article>
         <header>
             <button aria-label="Close" rel="prev" @click="$el.closest('dialog').close()"></button>
