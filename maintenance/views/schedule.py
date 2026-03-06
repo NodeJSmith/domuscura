@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from maintenance.forms import ScheduleForm
-from maintenance.models import Frequency, Location, Schedule
+from maintenance.models import Category, Frequency, Location, Schedule
 
 
 def _annotate_status(queryset: QuerySet[Schedule]) -> list[Schedule]:
@@ -35,7 +35,7 @@ def _apply_filters(qs: QuerySet[Schedule], params: QueryDict) -> QuerySet[Schedu
 
     category = params.get("category", "")
     if category:
-        qs = qs.filter(category=category)
+        qs = qs.filter(category__name=category)
 
     location_id = params.get("location", "")
     if location_id:
@@ -76,7 +76,7 @@ def _sort_schedules(schedules: list[Schedule], sort_param: str) -> list[Schedule
 
 @login_required
 def schedule_list(request: HttpRequest) -> HttpResponse:
-    qs = Schedule.objects.select_related("asset", "location", "asset__location", "frequency")
+    qs = Schedule.objects.select_related("asset", "location", "asset__location", "frequency", "category", "asset__category")
     qs = _apply_filters(qs, request.GET)
 
     # Annotate with status
@@ -92,10 +92,7 @@ def schedule_list(request: HttpRequest) -> HttpResponse:
     _sort_schedules(schedules, sort)
 
     # Filter options for the template
-    categories = sorted(set(
-        s.effective_category for s in Schedule.objects.select_related("asset").all()
-        if s.effective_category
-    ))
+    categories = Category.objects.values_list("name", flat=True)
     locations = Location.objects.all()
 
     context = {

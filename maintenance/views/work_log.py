@@ -64,7 +64,7 @@ def log_work_form(request: HttpRequest, schedule_id: int | None = None) -> HttpR
                 headers={"HX-Trigger": "workLogCreated"},
             )
     else:
-        initial: dict[str, Any] = {}
+        initial: dict[str, Any] = {"completed_at": timezone.now().date()}
         if schedule:
             initial["schedule"] = schedule
             if schedule.estimated_minutes:

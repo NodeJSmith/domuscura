@@ -8,14 +8,37 @@
     <p>{{ total_active }} active schedule{{ total_active|pluralize }} &middot; {{ today|date:"l, N j" }}</p>
 </hgroup>
 
+<!-- Filters — auto-submit on change -->
+<form method="get" class="dashboard-filters">
+    <input type="hidden" name="sort" value="{{ filters.sort }}">
+    <select name="priority" onchange="this.form.submit()">
+        <option value="">All priorities</option>
+        <option value="critical" {% if filters.priority == "critical" %}selected{% endif %}>Critical</option>
+        <option value="high" {% if filters.priority == "high" %}selected{% endif %}>High</option>
+        <option value="normal" {% if filters.priority == "normal" %}selected{% endif %}>Normal</option>
+        <option value="low" {% if filters.priority == "low" %}selected{% endif %}>Low</option>
+    </select>
+    <select name="category" onchange="this.form.submit()">
+        <option value="">All categories</option>
+        {% for cat in categories %}
+        <option value="{{ cat }}" {% if filters.category == cat %}selected{% endif %}>{{ cat }}</option>
+        {% endfor %}
+    </select>
+    {% if filters.priority or filters.category %}
+    <a href="?sort={{ filters.sort }}" role="button" class="outline secondary">Clear</a>
+    {% endif %}
+</form>
+
 {% if overdue or due_soon %}
 <section>
     <figure>
     <table>
         <thead>
             <tr>
-                <th>Schedule</th>
-                <th>Frequency</th>
+                <th><a href="?sort={% if filters.sort == 'name' %}{% else %}name{% endif %}&priority={{ filters.priority }}&category={{ filters.category }}">Schedule</a></th>
+                <th class="col-mobile-hide"><a href="?sort={% if filters.sort == 'priority' %}{% else %}priority{% endif %}&priority={{ filters.priority }}&category={{ filters.category }}">Priority</a></th>
+                <th class="col-mobile-hide">Impact</th>
+                <th class="col-mobile-hide">Frequency</th>
                 <th>Due</th>
                 <th>Actions</th>
             </tr>
@@ -23,22 +46,22 @@
         <tbody>
             {% if overdue %}
             <tr class="table-group-header">
-                <td colspan="4"><strong class="status-overdue">Overdue</strong> <small>({{ overdue|length }})</small></td>
+                <td colspan="6"><strong class="status-overdue">Overdue</strong> <small>({{ overdue|length }})</small></td>
             </tr>
             {% for schedule in overdue %}
             <tr id="schedule-{{ schedule.id }}">
-                <td>
-                    <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>{% if schedule.priority != 'normal' %}<span class="priority-badge priority-badge--{{ schedule.priority }}">{{ schedule.get_priority_display }}</span>{% endif %}
-                    {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
-                </td>
-                <td><small>{{ schedule.frequency }}</small></td>
+                <td><a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
+                    {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}</td>
+                <td class="col-mobile-hide">{{ schedule.get_priority_display }}</td>
+                <td class="col-mobile-hide">{{ schedule.get_impact_display|default:"—" }}</td>
+                <td class="col-mobile-hide"><small>{{ schedule.frequency }}</small></td>
                 <td><small class="status-overdue">{{ schedule.schedule_status.days_overdue }} day{{ schedule.schedule_status.days_overdue|pluralize }} overdue</small></td>
                 <td>
-                    <button class="outline secondary btn-action"
+                    <button class="btn-action"
                             hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
                             hx-target="#work-log-form-container"
                             hx-swap="innerHTML"
-                            @click="$dispatch('work-log-open')">Log Work</button>
+                            onclick="window.dispatchEvent(new CustomEvent('work-log-open'))">Log Work</button>
                 </td>
             </tr>
             {% endfor %}
@@ -46,22 +69,22 @@
 
             {% if due_soon %}
             <tr class="table-group-header">
-                <td colspan="4"><strong class="status-due-soon">Due Soon</strong> <small>({{ due_soon|length }})</small></td>
+                <td colspan="6"><strong class="status-due-soon">Due Soon</strong> <small>({{ due_soon|length }})</small></td>
             </tr>
             {% for schedule in due_soon %}
             <tr id="schedule-{{ schedule.id }}">
-                <td>
-                    <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>{% if schedule.priority != 'normal' %}<span class="priority-badge priority-badge--{{ schedule.priority }}">{{ schedule.get_priority_display }}</span>{% endif %}
-                    {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
-                </td>
-                <td><small>{{ schedule.frequency }}</small></td>
+                <td><a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
+                    {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}</td>
+                <td class="col-mobile-hide">{{ schedule.get_priority_display }}</td>
+                <td class="col-mobile-hide">{{ schedule.get_impact_display|default:"—" }}</td>
+                <td class="col-mobile-hide"><small>{{ schedule.frequency }}</small></td>
                 <td><small>in {{ schedule.schedule_status.days_until_due }} day{{ schedule.schedule_status.days_until_due|pluralize }}</small></td>
                 <td>
-                    <button class="outline secondary btn-action"
+                    <button class="btn-action"
                             hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
                             hx-target="#work-log-form-container"
                             hx-swap="innerHTML"
-                            @click="$dispatch('work-log-open')">Log Work</button>
+                            onclick="window.dispatchEvent(new CustomEvent('work-log-open'))">Log Work</button>
                 </td>
             </tr>
             {% endfor %}
@@ -115,25 +138,27 @@
         <table>
             <thead>
                 <tr>
-                    <th>Schedule</th>
-                    <th>Frequency</th>
+                    <th><a href="?sort={% if filters.sort == 'name' %}{% else %}name{% endif %}&priority={{ filters.priority }}&category={{ filters.category }}">Schedule</a></th>
+                    <th class="col-mobile-hide"><a href="?sort={% if filters.sort == 'priority' %}{% else %}priority{% endif %}&priority={{ filters.priority }}&category={{ filters.category }}">Priority</a></th>
+                    <th class="col-mobile-hide">Impact</th>
+                    <th class="col-mobile-hide">Frequency</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for schedule in never_done %}
                 <tr id="schedule-{{ schedule.id }}">
+                    <td><a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
+                        {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}</td>
+                    <td class="col-mobile-hide">{{ schedule.get_priority_display }}</td>
+                    <td class="col-mobile-hide">{{ schedule.get_impact_display|default:"—" }}</td>
+                    <td class="col-mobile-hide"><small>{{ schedule.frequency }}</small></td>
                     <td>
-                        <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>{% if schedule.priority != 'normal' %}<span class="priority-badge priority-badge--{{ schedule.priority }}">{{ schedule.get_priority_display }}</span>{% endif %}
-                        {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
-                        </td>
-                    <td><small>{{ schedule.frequency }}</small></td>
-                    <td>
-                        <button class="outline secondary btn-action"
+                        <button class="btn-action"
                                 hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
                                 hx-target="#work-log-form-container"
                                 hx-swap="innerHTML"
-                                @click="$dispatch('work-log-open')">Log Work</button>
+                                onclick="window.dispatchEvent(new CustomEvent('work-log-open'))">Log Work</button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -157,18 +182,20 @@
             <thead>
                 <tr>
                     <th>Schedule</th>
-                    <th>Frequency</th>
+                    <th class="col-mobile-hide">Priority</th>
+                    <th class="col-mobile-hide">Impact</th>
+                    <th class="col-mobile-hide">Frequency</th>
                     <th>Next Due</th>
                 </tr>
             </thead>
             <tbody>
                 {% for schedule in ok %}
                 <tr>
-                    <td>
-                        <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
-                        {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
-                    </td>
-                    <td><small>{{ schedule.frequency }}</small></td>
+                    <td><a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
+                        {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}</td>
+                    <td class="col-mobile-hide">{{ schedule.get_priority_display }}</td>
+                    <td class="col-mobile-hide">{{ schedule.get_impact_display|default:"—" }}</td>
+                    <td class="col-mobile-hide"><small>{{ schedule.frequency }}</small></td>
                     <td><small>{{ schedule.schedule_status.next_due_date|date:"M j" }}</small></td>
                 </tr>
                 {% endfor %}

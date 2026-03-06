@@ -21,7 +21,7 @@
         <label>
             Completed on
             {{ form.completed_at }}
-            <small>Leave blank for today</small>
+            <small>Defaults to today</small>
         </label>
         <label>
             Performed by
@@ -51,5 +51,7 @@
     </article>
     {% endif %}
 
-    <button type="submit">Save</button>
+    <div class="modal-footer">
+        <button type="submit">Save</button>
+    </div>
 </form>

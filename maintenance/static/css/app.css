@@ -129,6 +129,23 @@ nav a[aria-current="page"] {
     grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
 }
 
+/* Dashboard filters — compact inline row */
+.dashboard-filters {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.dashboard-filters select {
+    width: auto;
+    margin-bottom: 0;
+}
+.dashboard-filters a[role="button"] {
+    margin-bottom: 0;
+    padding: 0.4rem 0.75rem;
+}
+
 /* Spending summary: always 2×2 */
 .spending-summary {
     display: grid;
@@ -266,13 +283,15 @@ figure > table {
     flex: 1;
     min-height: 0;
 }
-#work-log-modal [type="submit"] {
+#work-log-modal .modal-footer {
     position: sticky;
     bottom: 0;
     background: var(--pico-card-background-color);
     padding-top: 0.5rem;
-    margin-bottom: 0;
     z-index: 1;
+}
+#work-log-modal .modal-footer [type="submit"] {
+    margin-bottom: 0;
 }
 
 /* ─── HTMX states ────────────────────────────────────────────────────────── */

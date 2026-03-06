@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}{% if editing %}Edit {{ category.name }}{% else %}New Category{% endif %} — Domuscura{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ul>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'category_list' %}">Categories</a></li>
+        <li aria-current="page">{% if editing %}Edit{% else %}New{% endif %}</li>
+    </ul>
+</nav>
+
+<h1>{% if editing %}Edit Category{% else %}New Category{% endif %}</h1>
+
+<form method="post" style="max-width: 28rem;">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <article aria-label="Validation errors" style="background: var(--pico-del-color); color: white; padding: 0.5rem 1rem;">
+        {{ form.errors }}
+    </article>
+    {% endif %}
+
+    <label>
+        Name *
+        {{ form.name }}
+        <small>How it appears in dropdowns (e.g. "HVAC", "Plumbing", "Exterior")</small>
+    </label>
+
+    <div class="form-actions">
+        <button type="submit">{% if editing %}Save Changes{% else %}Create Category{% endif %}</button>
+        <a href="{% url 'category_list' %}" role="button" class="outline secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

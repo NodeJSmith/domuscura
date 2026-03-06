@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Categories — Domuscura{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ul>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li aria-current="page">Categories</li>
+    </ul>
+</nav>
+
+<hgroup>
+    <h1>Categories</h1>
+    <p>Reusable labels for assets, schedules, and projects.</p>
+</hgroup>
+
+{% if categories %}
+<article>
+    <figure>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Assets</th>
+                <th>Schedules</th>
+                <th>Projects</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cat in categories %}
+            <tr>
+                <td><strong>{{ cat.name }}</strong></td>
+                <td>{{ cat.asset_count }}</td>
+                <td>{{ cat.schedule_count }}</td>
+                <td>{{ cat.project_count }}</td>
+                <td>
+                    <div style="display: flex; gap: 0.25rem;">
+                        <a href="{% url 'category_edit' cat.pk %}" role="button" class="outline secondary btn-action">Edit</a>
+                        {% if cat.asset_count == 0 and cat.schedule_count == 0 and cat.project_count == 0 %}
+                        <form hx-post="{% url 'category_delete' cat.pk %}" hx-confirm="Delete '{{ cat.name }}'?" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action outline secondary">Delete</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </figure>
+</article>
+{% else %}
+<article>
+    <p>No categories yet. <a href="{% url 'category_create' %}">Add the first one.</a></p>
+</article>
+{% endif %}
+
+<div class="form-actions">
+    <a href="{% url 'category_create' %}" role="button">+ New Category</a>
+</div>
+{% endblock %}

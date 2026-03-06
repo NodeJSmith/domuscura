@@ -6,7 +6,7 @@ from typing import Any
 from django import forms
 from django.utils import timezone
 
-from .models import Asset, Frequency, Issue, Location, Project, Schedule, WorkLog
+from .models import Asset, Category, Frequency, Issue, Location, Project, Schedule, WorkLog
 
 
 class AssetForm(forms.ModelForm):
@@ -45,6 +45,8 @@ class AssetForm(forms.ModelForm):
         self.fields["expected_lifespan_years"].required = False
         self.fields["purchase_price"].required = False
         self.fields["notes"].required = False
+        self.fields["location"].empty_label = "Unspecified"
+        self.fields["category"].empty_label = "Uncategorized"
 
 
 class ProjectForm(forms.ModelForm):
@@ -141,6 +143,12 @@ class FrequencyForm(forms.ModelForm):
         widgets = {
             "days": forms.NumberInput(attrs={"min": "1"}),
         }
+
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ["name"]
 
 
 class ScheduleForm(forms.ModelForm):

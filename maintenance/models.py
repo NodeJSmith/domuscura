@@ -8,6 +8,17 @@ from django.db.models import QuerySet
 from django.utils import timezone
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name_plural = "categories"
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class Location(models.Model):
     name = models.CharField(max_length=200, unique=True)
     notes = models.TextField(blank=True, default="")
@@ -21,22 +32,13 @@ class Location(models.Model):
 
 
 class Asset(models.Model):
-    CATEGORY_CHOICES = [
-        ("HVAC", "HVAC"),
-        ("Plumbing", "Plumbing"),
-        ("Electrical", "Electrical"),
-        ("Exterior", "Exterior"),
-        ("Interior", "Interior"),
-        ("Appliance", "Appliance"),
-        ("Safety", "Safety"),
-        ("Structural", "Structural"),
-    ]
-
     name = models.CharField(max_length=200)
     location = models.ForeignKey(
         Location, on_delete=models.SET_NULL, null=True, blank=True
     )
-    category = models.CharField(max_length=50, blank=True, default="")
+    category = models.ForeignKey(
+        "Category", on_delete=models.SET_NULL, null=True, blank=True
+    )
     make = models.CharField(max_length=200, blank=True, default="")
     model_name = models.CharField(
         max_length=200, blank=True, default="", db_column="model"
@@ -53,7 +55,7 @@ class Asset(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["category", "name"]
+        ordering = ["category__name", "name"]
 
     def __str__(self) -> str:
         return self.name
@@ -120,7 +122,9 @@ class Schedule(models.Model):
     location = models.ForeignKey(
         Location, on_delete=models.SET_NULL, null=True, blank=True
     )
-    category = models.CharField(max_length=50, blank=True, default="")
+    category = models.ForeignKey(
+        "Category", on_delete=models.SET_NULL, null=True, blank=True
+    )
     frequency = models.ForeignKey(
         "Frequency", on_delete=models.PROTECT, related_name="schedules"
     )
@@ -146,9 +150,9 @@ class Schedule(models.Model):
     @property
     def effective_category(self) -> str:
         if self.category:
-            return self.category
-        if self.asset:
-            return self.asset.category
+            return self.category.name
+        if self.asset and self.asset.category:
+            return self.asset.category.name
         return ""
 
     @property
@@ -241,7 +245,9 @@ class Project(models.Model):
     location = models.ForeignKey(
         Location, on_delete=models.SET_NULL, null=True, blank=True
     )
-    category = models.CharField(max_length=50, blank=True, default="")
+    category = models.ForeignKey(
+        "Category", on_delete=models.SET_NULL, null=True, blank=True
+    )
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default="normal")
     impact = models.CharField(
         max_length=20, choices=IMPACT_CHOICES, blank=True, default=""

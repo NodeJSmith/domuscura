@@ -13,11 +13,10 @@
     <td>
         <div style="display: flex; gap: 0.25rem;">
             <button style="padding: 0.15rem 0.5rem; margin: 0; font-size: 0.8rem;"
-                    class="outline secondary"
                     hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
                     hx-target="#work-log-form-container"
                     hx-swap="innerHTML"
-                    @click="$dispatch('work-log-open')"
+                    onclick="window.dispatchEvent(new CustomEvent('work-log-open'))"
                     {% if not schedule.active %}disabled{% endif %}>
                 Log Work
             </button>

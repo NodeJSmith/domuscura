@@ -69,17 +69,12 @@
             <header>
                 <div class="status-header">
                     <strong>Status</strong>
-                    <form hx-post="{% url 'quick_log' schedule.id %}"
-                          hx-target="body"
-                          hx-swap="none"
-                          hx-on::after-request="if(event.detail.successful) window.location.reload()"
-                          hx-confirm="Mark this done?"
-                          style="margin: 0;">
-                        {% csrf_token %}
-                        <button type="submit" hx-disabled-elt="this">
-                            Mark Done
-                        </button>
-                    </form>
+                    <button hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
+                            hx-target="#work-log-form-container"
+                            hx-swap="innerHTML"
+                            onclick="window.dispatchEvent(new CustomEvent('work-log-open'))">
+                        Log Work
+                    </button>
                 </div>
             </header>
 
@@ -91,11 +86,6 @@
             <p><strong class="status-ok">Up to date</strong> — due {{ schedule.schedule_status.next_due_date|date:"M j, Y" }}</p>
             {% elif schedule.schedule_status.status == "never_done" %}
             <p><strong class="status-never-done">Never completed</strong> — no work logs yet</p>
-            <button class="outline secondary btn-card"
-                    hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
-                    hx-target="#work-log-form-container"
-                    hx-swap="innerHTML"
-                    @click="$dispatch('work-log-open')">Log Work with Details</button>
             {% endif %}
 
             {% if schedule.schedule_status.last_completed %}
@@ -109,7 +99,10 @@
 
 <!-- Work Log History -->
 <article>
-    <header><strong>Work Log History</strong></header>
+    <header>
+        <strong>Work Log History</strong>
+        <small style="font-weight: normal; color: var(--dm-ink-muted);">Entries cannot be edited or deleted</small>
+    </header>
 
     {% if work_logs %}
     <table>

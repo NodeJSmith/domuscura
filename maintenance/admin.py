@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from .models import Asset, Document, Frequency, Issue, Location, Project, Schedule, WorkLog
+from .models import Asset, Category, Document, Frequency, Issue, Location, Project, Schedule, WorkLog
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ["name"]
+    ordering = ["name"]
 
 
 @admin.register(Location)
