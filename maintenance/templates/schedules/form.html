@@ -60,53 +60,17 @@
         </label>
     </div>
 
-    <div x-data="{
-        currentPreset: '',
-        presets: {
-            '7': 'Weekly', '14': 'Every 2 weeks', '30': 'Monthly',
-            '90': 'Every 3 months', '180': 'Every 6 months',
-            '365': 'Annually', '730': 'Every 2 years'
-        },
-        init() {
-            const days = document.getElementById('id_frequency_days').value;
-            this.currentPreset = days in this.presets ? days : '';
-        },
-        applyPreset() {
-            if (!this.currentPreset) return;
-            document.getElementById('id_frequency_days').value = this.currentPreset;
-            document.getElementById('id_frequency_label').value = this.presets[this.currentPreset];
-        }
-    }" x-init="init()">
-        <label>
-            How often? *
-            <select x-model="currentPreset" @change="applyPreset()">
-                <option value="">— choose a preset, or fill in below —</option>
-                <option value="7">Weekly</option>
-                <option value="14">Every 2 weeks</option>
-                <option value="30">Monthly</option>
-                <option value="90">Every 3 months</option>
-                <option value="180">Every 6 months</option>
-                <option value="365">Annually</option>
-                <option value="730">Every 2 years</option>
-            </select>
-        </label>
-        <div class="grid">
-            <label>
-                Frequency (days) *
-                {{ form.frequency_days }}
-            </label>
-            <label>
-                Display label
-                {{ form.frequency_label }}
-                <small>Shown instead of the day count (e.g. "Monthly", "Annually")</small>
-            </label>
-            <label>
-                Season Hint
-                {{ form.season_hint }}
-                <small>Optional reminder of when to do this (e.g. "Best done in Fall")</small>
-            </label>
-        </div>
-    </div>
+    <label>
+        How often? *
+        {{ form.frequency }}
+        <small>Can't find the right interval? <a href="{% url 'frequency_list' %}" target="_blank">Manage frequencies</a></small>
+    </label>
+
+    <label>
+        Season Hint
+        {{ form.season_hint }}
+        <small>Optional reminder of when to do this (e.g. "Best done in Fall")</small>
+    </label>
 
     <div class="grid">
         <label>

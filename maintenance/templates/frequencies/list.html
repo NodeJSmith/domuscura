@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Frequencies — Domuscura{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ul>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li aria-current="page">Frequencies</li>
+    </ul>
+</nav>
+
+<hgroup>
+    <h1>Frequencies</h1>
+    <p>Reusable schedule intervals — pick one when creating or editing a schedule.</p>
+</hgroup>
+
+{% if frequencies %}
+<article>
+    <figure>
+    <table>
+        <thead>
+            <tr>
+                <th>Label</th>
+                <th>Days</th>
+                <th>Schedules</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for freq in frequencies %}
+            <tr>
+                <td><strong>{{ freq.label }}</strong></td>
+                <td>{{ freq.days }}</td>
+                <td>{{ freq.schedules.count }}</td>
+                <td>
+                    <div style="display: flex; gap: 0.25rem;">
+                        <a href="{% url 'frequency_edit' freq.pk %}" role="button" class="outline secondary btn-action">Edit</a>
+                        {% if freq.schedules.count == 0 %}
+                        <form hx-post="{% url 'frequency_delete' freq.pk %}" hx-confirm="Delete '{{ freq.label }}'?" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action outline secondary">Delete</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </figure>
+</article>
+{% else %}
+<article>
+    <p>No frequencies yet. <a href="{% url 'frequency_create' %}">Add the first one.</a></p>
+</article>
+{% endif %}
+
+<div class="form-actions">
+    <a href="{% url 'frequency_create' %}" role="button">+ New Frequency</a>
+</div>
+{% endblock %}

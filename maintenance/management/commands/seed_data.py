@@ -3,7 +3,7 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand
 
-from maintenance.models import Location, Schedule
+from maintenance.models import Frequency, Location, Schedule
 
 BASE_PATH = Path(__file__).resolve().parents[3]
 
@@ -111,12 +111,17 @@ class Command(BaseCommand):
         ).fetchall()
 
         for row in rows:
+            days = row[3]
+            label = row[4] or ""
+            frequency, _ = Frequency.objects.get_or_create(
+                days=days,
+                defaults={"label": label},
+            )
             Schedule.objects.create(
                 name=row[0],
                 description=row[1] or "",
                 category=row[2] or "",
-                frequency_days=row[3],
-                frequency_label=row[4] or "",
+                frequency=frequency,
                 season_hint=row[5] or "",
                 priority=row[6] or "normal",
                 impact=row[7] or "",

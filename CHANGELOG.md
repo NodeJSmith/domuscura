@@ -9,6 +9,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 ## [Unreleased]
 
 ### Added
+- Schedule frequencies are now a reusable model — create and manage intervals (Weekly, Monthly, Annually, etc.) from a dedicated Frequencies page; schedules pick one from the list
 - Schedule form: preset picker (Weekly / Monthly / Annually / etc.) auto-fills frequency fields — no more mental arithmetic
 - Spending page: empty state explanation when no costs have been recorded yet
 - Schedule detail: "Log Work with Details" button in status card when a schedule has never been completed

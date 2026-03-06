@@ -74,6 +74,18 @@ class Asset(models.Model):
         return delta.days // 365
 
 
+class Frequency(models.Model):
+    days = models.PositiveIntegerField()
+    label = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ["days"]
+        verbose_name_plural = "frequencies"
+
+    def __str__(self) -> str:
+        return self.label or f"Every {self.days} day{'s' if self.days != 1 else ''}"
+
+
 class ScheduleStatus(NamedTuple):
     """Immutable computed status for a Schedule. Returned by Schedule.compute_status()."""
 
@@ -109,8 +121,9 @@ class Schedule(models.Model):
         Location, on_delete=models.SET_NULL, null=True, blank=True
     )
     category = models.CharField(max_length=50, blank=True, default="")
-    frequency_days = models.PositiveIntegerField()
-    frequency_label = models.CharField(max_length=50, blank=True, default="")
+    frequency = models.ForeignKey(
+        "Frequency", on_delete=models.PROTECT, related_name="schedules"
+    )
     season_hint = models.CharField(max_length=50, blank=True, default="")
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default="normal")
     impact = models.CharField(
@@ -179,25 +192,25 @@ class Schedule(models.Model):
             )
 
         days_since = (now - last_completed).days
-        next_due_date = (last_completed + timedelta(days=self.frequency_days)).date()
+        next_due_date = (last_completed + timedelta(days=self.frequency.days)).date()
 
-        if days_since > self.frequency_days:
+        if days_since > self.frequency.days:
             return ScheduleStatus(
                 status="overdue",
                 last_completed=last_completed,
                 days_since_last=days_since,
                 next_due_date=next_due_date,
-                days_overdue=days_since - self.frequency_days,
+                days_overdue=days_since - self.frequency.days,
                 days_until_due=None,
             )
-        elif days_since > self.frequency_days * 0.85:
+        elif days_since > self.frequency.days * 0.85:
             return ScheduleStatus(
                 status="due_soon",
                 last_completed=last_completed,
                 days_since_last=days_since,
                 next_due_date=next_due_date,
                 days_overdue=None,
-                days_until_due=self.frequency_days - days_since,
+                days_until_due=self.frequency.days - days_since,
             )
         else:
             return ScheduleStatus(
@@ -206,7 +219,7 @@ class Schedule(models.Model):
                 days_since_last=days_since,
                 next_due_date=next_due_date,
                 days_overdue=None,
-                days_until_due=self.frequency_days - days_since,
+                days_until_due=self.frequency.days - days_since,
             )
 
 

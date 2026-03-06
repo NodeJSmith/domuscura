@@ -16,7 +16,7 @@
     <footer>
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <small>
-                {{ schedule.frequency_label|default:schedule.frequency_days }}
+                {{ schedule.frequency }}
                 {% if schedule.schedule_status.status == "overdue" %}
                     &middot; {{ schedule.schedule_status.days_overdue }} day{{ schedule.schedule_status.days_overdue|pluralize }} overdue
                 {% elif schedule.schedule_status.status == "due_soon" %}

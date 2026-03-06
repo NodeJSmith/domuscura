@@ -18,24 +18,7 @@
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <style>
-        :root {
-            --pico-font-size: 93.75%;
-        }
-        body > nav {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: var(--pico-background-color);
-            border-bottom: 1px solid var(--pico-muted-border-color);
-        }
-        .status-overdue { color: var(--pico-del-color); font-weight: bold; }
-        .status-due-soon { color: var(--pico-ins-color); font-weight: bold; }
-        .status-ok { color: var(--pico-primary); }
-        .status-never-done { color: var(--pico-muted-color); }
-        main { padding-top: 1rem; }
-    </style>
-    {% block extra_head %}{% endblock %}
+{% block extra_head %}{% endblock %}
 </head>
 <body>
     <nav class="container-fluid">
@@ -49,6 +32,7 @@
             <li><a href="{% url 'issue_list' %}" {% if 'issue' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Issues</a></li>
             <li><a href="{% url 'asset_list' %}" {% if 'asset' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Assets</a></li>
             <li><a href="{% url 'spending_summary' %}" {% if 'spending' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Spending</a></li>
+            <li><a href="{% url 'frequency_list' %}" {% if 'frequency' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Frequencies</a></li>
         </ul>
     </nav>
 

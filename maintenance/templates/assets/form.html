@@ -91,7 +91,7 @@
         {{ form.notes }}
     </label>
 
-    <div style="display: flex; gap: 0.5rem;">
+    <div class="form-actions">
         <button type="submit">{% if editing %}Save Changes{% else %}Create Asset{% endif %}</button>
         {% if editing %}
         <a href="{% url 'asset_detail' asset.id %}" role="button" class="outline secondary">Cancel</a>

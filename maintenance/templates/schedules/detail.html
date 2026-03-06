@@ -17,11 +17,7 @@
         {% include "partials/status_badge.html" with status=schedule.schedule_status.status %}
     </h1>
     <p>
-        {% if schedule.frequency_label %}
-            {{ schedule.frequency_label }}
-        {% else %}
-            every {{ schedule.frequency_days }} day{{ schedule.frequency_days|pluralize }}
-        {% endif %}
+        {{ schedule.frequency }}
         &middot; {{ schedule.get_priority_display }} priority
         {% if not schedule.active %}&middot; <mark>Inactive</mark>{% endif %}
     </p>

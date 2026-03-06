@@ -31,7 +31,7 @@
                     <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
                     {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
                 </td>
-                <td><small>{{ schedule.frequency_label|default:schedule.frequency_days }}</small></td>
+                <td><small>{{ schedule.frequency }}</small></td>
                 <td><small class="status-overdue">{{ schedule.schedule_status.days_overdue }} day{{ schedule.schedule_status.days_overdue|pluralize }} overdue</small></td>
                 <td>
                     <div style="display: flex; gap: 0.25rem;">
@@ -64,7 +64,7 @@
                     <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
                     {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
                 </td>
-                <td><small>{{ schedule.frequency_label|default:schedule.frequency_days }}</small></td>
+                <td><small>{{ schedule.frequency }}</small></td>
                 <td><small>in {{ schedule.schedule_status.days_until_due }} day{{ schedule.schedule_status.days_until_due|pluralize }}</small></td>
                 <td>
                     <div style="display: flex; gap: 0.25rem;">
@@ -147,7 +147,7 @@
                         <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>{% if schedule.priority != 'normal' %}<span class="priority-badge priority-badge--{{ schedule.priority }}">{{ schedule.get_priority_display }}</span>{% endif %}
                         {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
                     </td>
-                    <td><small>{{ schedule.frequency_label|default:schedule.frequency_days }}</small></td>
+                    <td><small>{{ schedule.frequency }}</small></td>
                     <td>
                         <div style="display: flex; gap: 0.25rem;">
                             <button class="outline secondary btn-action"
@@ -198,7 +198,7 @@
                         <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
                         {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
                     </td>
-                    <td><small>{{ schedule.frequency_label|default:schedule.frequency_days }}</small></td>
+                    <td><small>{{ schedule.frequency }}</small></td>
                     <td><small>{{ schedule.schedule_status.next_due_date|date:"M j" }}</small></td>
                 </tr>
                 {% endfor %}

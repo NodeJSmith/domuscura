@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views.asset import asset_create, asset_detail, asset_edit, asset_list
+from .views.frequency import frequency_create, frequency_delete, frequency_edit, frequency_list
 from .views.dashboard import dashboard
 from .views.issue import issue_create, issue_detail, issue_edit, issue_list
 from .views.project import project_create, project_detail, project_edit, project_list
@@ -37,6 +38,11 @@ urlpatterns = [
     path("assets/new/", asset_create, name="asset_create"),
     path("assets/<int:pk>/", asset_detail, name="asset_detail"),
     path("assets/<int:pk>/edit/", asset_edit, name="asset_edit"),
+    # Frequencies
+    path("frequencies/", frequency_list, name="frequency_list"),
+    path("frequencies/new/", frequency_create, name="frequency_create"),
+    path("frequencies/<int:pk>/edit/", frequency_edit, name="frequency_edit"),
+    path("frequencies/<int:pk>/delete/", frequency_delete, name="frequency_delete"),
     # Spending
     path("spending/", spending_summary, name="spending_summary"),
     # Work logs

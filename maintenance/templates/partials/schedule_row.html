@@ -5,8 +5,7 @@
     </td>
     <td class="col-mobile-hide">{{ schedule.effective_category|default:"—" }}</td>
     <td class="col-mobile-hide">
-        {{ schedule.frequency_label|default:schedule.frequency_days }}
-        {% if not schedule.frequency_label %}d{% endif %}
+        {{ schedule.frequency }}
     </td>
     <td class="col-mobile-hide">{{ schedule.get_priority_display }}</td>
     <td>{% include "partials/status_badge.html" with status=schedule.schedule_status.status %}</td>

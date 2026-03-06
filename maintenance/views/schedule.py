@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from maintenance.forms import ScheduleForm
-from maintenance.models import Location, Schedule
+from maintenance.models import Frequency, Location, Schedule
 
 
 def _annotate_status(queryset: QuerySet[Schedule]) -> list[Schedule]:
@@ -57,7 +57,7 @@ def _apply_filters(qs: QuerySet[Schedule], params: QueryDict) -> QuerySet[Schedu
 SORT_KEYS: dict[str, Callable[[Schedule], Any]] = {
     "name": lambda s: s.name.lower(),
     "priority": lambda s: {"critical": 0, "high": 1, "normal": 2, "low": 3}.get(s.priority, 2),
-    "frequency": lambda s: s.frequency_days,
+    "frequency": lambda s: s.frequency.days,
     "status": lambda s: {"overdue": 0, "due_soon": 1, "never_done": 2, "ok": 3}.get(s.schedule_status.status, 4),
     "category": lambda s: (s.effective_category or "zzz").lower(),
 }
@@ -76,7 +76,7 @@ def _sort_schedules(schedules: list[Schedule], sort_param: str) -> list[Schedule
 
 @login_required
 def schedule_list(request: HttpRequest) -> HttpResponse:
-    qs = Schedule.objects.select_related("asset", "location", "asset__location")
+    qs = Schedule.objects.select_related("asset", "location", "asset__location", "frequency")
     qs = _apply_filters(qs, request.GET)
 
     # Annotate with status
@@ -123,7 +123,7 @@ def schedule_list(request: HttpRequest) -> HttpResponse:
 @login_required
 def schedule_detail(request: HttpRequest, pk: int) -> HttpResponse:
     schedule = get_object_or_404(
-        Schedule.objects.select_related("asset", "location", "asset__location"),
+        Schedule.objects.select_related("asset", "location", "asset__location", "frequency"),
         pk=pk,
     )
 

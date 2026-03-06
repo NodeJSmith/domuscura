@@ -6,7 +6,7 @@ from typing import Any
 from django import forms
 from django.utils import timezone
 
-from .models import Asset, Issue, Project, Schedule, WorkLog
+from .models import Asset, Frequency, Issue, Project, Schedule, WorkLog
 
 
 class AssetForm(forms.ModelForm):
@@ -125,6 +125,15 @@ class IssueForm(forms.ModelForm):
             self.fields["discovered_at"].initial = date.today()
 
 
+class FrequencyForm(forms.ModelForm):
+    class Meta:
+        model = Frequency
+        fields = ["label", "days"]
+        widgets = {
+            "days": forms.NumberInput(attrs={"min": "1"}),
+        }
+
+
 class ScheduleForm(forms.ModelForm):
     class Meta:
         model = Schedule
@@ -134,8 +143,7 @@ class ScheduleForm(forms.ModelForm):
             "asset",
             "location",
             "category",
-            "frequency_days",
-            "frequency_label",
+            "frequency",
             "season_hint",
             "priority",
             "impact",
@@ -150,7 +158,6 @@ class ScheduleForm(forms.ModelForm):
             "notes": forms.Textarea(attrs={"rows": 3}),
             "estimated_cost": forms.NumberInput(attrs={"step": "0.01", "min": "0"}),
             "estimated_minutes": forms.NumberInput(attrs={"min": "0"}),
-            "frequency_days": forms.NumberInput(attrs={"min": "1"}),
         }
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -159,7 +166,6 @@ class ScheduleForm(forms.ModelForm):
         self.fields["asset"].required = False
         self.fields["location"].required = False
         self.fields["category"].required = False
-        self.fields["frequency_label"].required = False
         self.fields["season_hint"].required = False
         self.fields["impact"].required = False
         self.fields["estimated_minutes"].required = False
