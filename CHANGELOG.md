@@ -9,12 +9,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 ## [Unreleased]
 
 ### Added
-- Responsive CSS: schedule card grids now wrap instead of cramming into a single unreadable row
-- Responsive tables: list views scroll horizontally on narrow viewports instead of overflowing
-- `ScheduleStatus` named tuple — `Schedule.compute_status()` is now a pure function with no side effects
+- Responsive CSS: schedule card grids now wrap instead of cramming into a single unreadable row (#2)
+- Responsive tables: list views scroll horizontally on narrow viewports instead of overflowing (#2)
+- `ScheduleStatus` named tuple — `Schedule.compute_status()` is now a pure function with no side effects (#2)
 
 ### Changed
-- Type annotations added to all view functions, model methods, and form methods
+- Type annotations added to all view functions, model methods, and form methods (#2)
 
 ---
 
