@@ -18,13 +18,25 @@
         <option value="normal" {% if filters.priority == "normal" %}selected{% endif %}>Normal</option>
         <option value="low" {% if filters.priority == "low" %}selected{% endif %}>Low</option>
     </select>
+    <select name="impact" onchange="this.form.submit()">
+        <option value="">All impacts</option>
+        {% for value, label in impact_choices %}
+        <option value="{{ value }}" {% if filters.impact == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
     <select name="category" onchange="this.form.submit()">
         <option value="">All categories</option>
         {% for cat in categories %}
         <option value="{{ cat }}" {% if filters.category == cat %}selected{% endif %}>{{ cat }}</option>
         {% endfor %}
     </select>
-    {% if filters.priority or filters.category %}
+    <select name="frequency" onchange="this.form.submit()">
+        <option value="">All frequencies</option>
+        {% for freq in frequencies %}
+        <option value="{{ freq.id }}" {% if filters.frequency == freq.id|stringformat:"s" %}selected{% endif %}>{{ freq }}</option>
+        {% endfor %}
+    </select>
+    {% if filters.priority or filters.category or filters.impact or filters.frequency %}
     <a href="?sort={{ filters.sort }}" role="button" class="outline secondary">Clear</a>
     {% endif %}
 </form>
@@ -35,10 +47,10 @@
     <table>
         <thead>
             <tr>
-                <th><a href="?sort={% if filters.sort == 'name' %}{% else %}name{% endif %}&priority={{ filters.priority }}&category={{ filters.category }}">Schedule</a></th>
-                <th class="col-mobile-hide"><a href="?sort={% if filters.sort == 'priority' %}{% else %}priority{% endif %}&priority={{ filters.priority }}&category={{ filters.category }}">Priority</a></th>
-                <th class="col-mobile-hide">Impact</th>
-                <th class="col-mobile-hide">Frequency</th>
+                <th><a href="?sort={% if filters.sort == 'name' %}-name{% else %}name{% endif %}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Task</a></th>
+                <th class="col-mobile-hide"><a href="?sort={% if filters.sort == 'priority' %}-priority{% else %}priority{% endif %}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Priority</a></th>
+                <th class="col-mobile-hide"><a href="?sort={% if filters.sort == 'impact' %}-impact{% else %}impact{% endif %}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Impact</a></th>
+                <th class="col-mobile-hide"><a href="?sort={% if filters.sort == 'frequency' %}-frequency{% else %}frequency{% endif %}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Frequency</a></th>
                 <th>Due</th>
                 <th>Actions</th>
             </tr>
@@ -138,10 +150,10 @@
         <table>
             <thead>
                 <tr>
-                    <th><a href="?sort={% if filters.sort == 'name' %}{% else %}name{% endif %}&priority={{ filters.priority }}&category={{ filters.category }}">Schedule</a></th>
-                    <th class="col-mobile-hide"><a href="?sort={% if filters.sort == 'priority' %}{% else %}priority{% endif %}&priority={{ filters.priority }}&category={{ filters.category }}">Priority</a></th>
-                    <th class="col-mobile-hide">Impact</th>
-                    <th class="col-mobile-hide">Frequency</th>
+                    <th><a href="?sort={% if filters.sort == 'name' %}-name{% else %}name{% endif %}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Task</a></th>
+                    <th class="col-mobile-hide"><a href="?sort={% if filters.sort == 'priority' %}-priority{% else %}priority{% endif %}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Priority</a></th>
+                    <th class="col-mobile-hide"><a href="?sort={% if filters.sort == 'impact' %}-impact{% else %}impact{% endif %}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Impact</a></th>
+                    <th class="col-mobile-hide"><a href="?sort={% if filters.sort == 'frequency' %}-frequency{% else %}frequency{% endif %}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Frequency</a></th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -181,7 +193,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>Schedule</th>
+                    <th>Task</th>
                     <th class="col-mobile-hide">Priority</th>
                     <th class="col-mobile-hide">Impact</th>
                     <th class="col-mobile-hide">Frequency</th>
