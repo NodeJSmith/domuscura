@@ -15,6 +15,7 @@
             <form hx-post="{% url 'quick_log' schedule.id %}"
                   hx-target="#schedule-row-{{ schedule.id }}"
                   hx-swap="outerHTML"
+                  hx-confirm="Mark this done?"
                   style="margin: 0;">
                 {% csrf_token %}
                 <button type="submit"

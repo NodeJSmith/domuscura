@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from datetime import timedelta
+from typing import Any
+
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -15,6 +18,15 @@ from maintenance.models import Schedule, WorkLog
 def quick_log(request: HttpRequest, schedule_id: int) -> HttpResponse:
     """Mark a schedule as done right now, with no extra details."""
     schedule = get_object_or_404(Schedule, pk=schedule_id)
+
+    # Deduplicate: ignore if a log was created in the last 5 minutes
+    cutoff = timezone.now() - timedelta(minutes=5)
+    if WorkLog.objects.filter(schedule=schedule, completed_at__gte=cutoff).exists():
+        schedule.schedule_status = schedule.compute_status(timezone.now())
+        hx_target = request.headers.get("HX-Target", "")
+        if hx_target.startswith("schedule-row-"):
+            return render(request, "partials/schedule_row.html", {"schedule": schedule})
+        return render(request, "partials/schedule_card.html", {"schedule": schedule})
 
     work_log = WorkLog.objects.create(
         schedule=schedule,
@@ -59,9 +71,11 @@ def log_work_form(request: HttpRequest, schedule_id: int | None = None) -> HttpR
                 headers={"HX-Trigger": "workLogCreated"},
             )
     else:
-        initial = {}
+        initial: dict[str, Any] = {}
         if schedule:
             initial["schedule"] = schedule
+            if schedule.estimated_minutes:
+                initial["duration_minutes"] = schedule.estimated_minutes
         form = WorkLogForm(initial=initial)
 
     return render(request, "partials/work_log_form.html", {

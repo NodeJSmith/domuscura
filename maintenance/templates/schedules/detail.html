@@ -17,14 +17,17 @@
         {% include "partials/status_badge.html" with status=schedule.schedule_status.status %}
     </h1>
     <p>
-        {{ schedule.frequency_label|default:schedule.frequency_days }}
-        {% if not schedule.frequency_label %}day{% endif %} interval
+        {% if schedule.frequency_label %}
+            {{ schedule.frequency_label }}
+        {% else %}
+            every {{ schedule.frequency_days }} day{{ schedule.frequency_days|pluralize }}
+        {% endif %}
         &middot; {{ schedule.get_priority_display }} priority
         {% if not schedule.active %}&middot; <mark>Inactive</mark>{% endif %}
     </p>
 </hgroup>
 
-<div class="grid">
+<div class="detail-grid">
     <div>
         <article>
             <header><strong>Details</strong></header>
@@ -32,7 +35,7 @@
             <p>{{ schedule.description }}</p>
             {% endif %}
 
-            <dl>
+            <dl class="detail-dl">
                 {% if schedule.effective_category %}
                 <dt>Category</dt><dd>{{ schedule.effective_category }}</dd>
                 {% endif %}
@@ -71,16 +74,16 @@
     <div>
         <article>
             <header>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="status-header">
                     <strong>Status</strong>
                     <form hx-post="{% url 'quick_log' schedule.id %}"
                           hx-target="body"
                           hx-swap="none"
                           hx-on::after-request="if(event.detail.successful) window.location.reload()"
+                          hx-confirm="Mark this done?"
                           style="margin: 0;">
                         {% csrf_token %}
-                        <button type="submit" style="padding: 0.25rem 0.75rem; margin: 0;"
-                                hx-disabled-elt="this">
+                        <button type="submit" hx-disabled-elt="this">
                             Mark Done
                         </button>
                     </form>
@@ -88,13 +91,13 @@
             </header>
 
             {% if schedule.schedule_status.status == "overdue" %}
-            <p><strong style="color: var(--pico-del-color);">Overdue</strong> by {{ schedule.schedule_status.days_overdue }} day{{ schedule.schedule_status.days_overdue|pluralize }}</p>
+            <p><strong class="status-overdue">Overdue</strong> by {{ schedule.schedule_status.days_overdue }} day{{ schedule.schedule_status.days_overdue|pluralize }}</p>
             {% elif schedule.schedule_status.status == "due_soon" %}
-            <p><strong style="color: var(--color-warning);">Due soon</strong> — {{ schedule.schedule_status.days_until_due }} day{{ schedule.schedule_status.days_until_due|pluralize }} remaining</p>
+            <p><strong class="status-due-soon">Due soon</strong> — {{ schedule.schedule_status.days_until_due }} day{{ schedule.schedule_status.days_until_due|pluralize }} remaining</p>
             {% elif schedule.schedule_status.status == "ok" %}
-            <p><strong style="color: var(--pico-ins-color);">Up to date</strong> — due {{ schedule.schedule_status.next_due_date|date:"M j, Y" }}</p>
+            <p><strong class="status-ok">Up to date</strong> — due {{ schedule.schedule_status.next_due_date|date:"M j, Y" }}</p>
             {% elif schedule.schedule_status.status == "never_done" %}
-            <p><strong>Never completed</strong> — no work logs yet</p>
+            <p><strong class="status-never-done">Never completed</strong> — no work logs yet</p>
             {% endif %}
 
             {% if schedule.schedule_status.last_completed %}

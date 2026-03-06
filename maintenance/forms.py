@@ -81,6 +81,10 @@ class ProjectForm(forms.ModelForm):
         self.fields["target_date"].required = False
         self.fields["estimated_cost"].required = False
         self.fields["notes"].required = False
+        self.fields["asset"].empty_label = "No specific asset"
+        self.fields["location"].empty_label = "Unspecified"
+        self.fields["category"].empty_label = "Uncategorized"
+        self.fields["impact"].empty_label = "Unspecified"
 
 
 class IssueForm(forms.ModelForm):
@@ -113,6 +117,10 @@ class IssueForm(forms.ModelForm):
         self.fields["discovered_at"].required = False
         self.fields["project"].required = False
         self.fields["notes"].required = False
+        self.fields["asset"].empty_label = "No specific asset"
+        self.fields["location"].empty_label = "Unspecified"
+        self.fields["source"].empty_label = "Not recorded"
+        self.fields["project"].empty_label = "No linked project"
 
 
 class ScheduleForm(forms.ModelForm):
@@ -155,6 +163,10 @@ class ScheduleForm(forms.ModelForm):
         self.fields["estimated_minutes"].required = False
         self.fields["estimated_cost"].required = False
         self.fields["notes"].required = False
+        self.fields["asset"].empty_label = "No specific asset"
+        self.fields["location"].empty_label = "Unspecified"
+        self.fields["category"].empty_label = "Uncategorized"
+        self.fields["impact"].empty_label = "Unspecified"
 
 
 class WorkLogForm(forms.ModelForm):
@@ -191,6 +203,9 @@ class WorkLogForm(forms.ModelForm):
         self.fields["cost"].required = False
         self.fields["duration_minutes"].required = False
         self.fields["notes"].required = False
+        self.fields["schedule"].empty_label = "No linked schedule"
+        self.fields["project"].empty_label = "No linked project"
+        self.fields["asset"].empty_label = "No specific asset"
 
     def clean_completed_at(self) -> datetime:
         val = self.cleaned_data.get("completed_at")

@@ -42,6 +42,7 @@
                                 @click="$dispatch('work-log-open')">Log Work</button>
                         <form hx-post="{% url 'quick_log' schedule.id %}"
                               hx-swap="none"
+                              hx-confirm="Mark this done?"
                               hx-on::after-request="if(event.detail.successful) this.closest('tr').remove()"
                               style="margin: 0;">
                             {% csrf_token %}
@@ -74,6 +75,7 @@
                                 @click="$dispatch('work-log-open')">Log Work</button>
                         <form hx-post="{% url 'quick_log' schedule.id %}"
                               hx-swap="none"
+                              hx-confirm="Mark this done?"
                               hx-on::after-request="if(event.detail.successful) this.closest('tr').remove()"
                               style="margin: 0;">
                             {% csrf_token %}
@@ -142,7 +144,7 @@
                 {% for schedule in never_done %}
                 <tr id="schedule-{{ schedule.id }}">
                     <td>
-                        <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
+                        <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>{% if schedule.priority != 'normal' %}<span class="priority-badge priority-badge--{{ schedule.priority }}">{{ schedule.get_priority_display }}</span>{% endif %}
                         {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
                     </td>
                     <td><small>{{ schedule.frequency_label|default:schedule.frequency_days }}</small></td>
@@ -155,6 +157,7 @@
                                     @click="$dispatch('work-log-open')">Log Work</button>
                             <form hx-post="{% url 'quick_log' schedule.id %}"
                                   hx-swap="none"
+                                  hx-confirm="Mark this done?"
                                   hx-on::after-request="if(event.detail.successful) this.closest('tr').remove()"
                                   style="margin: 0;">
                                 {% csrf_token %}

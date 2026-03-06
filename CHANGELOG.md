@@ -17,6 +17,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 - Type annotations added to all view functions, model methods, and form methods (#2)
 
 ### Fixed
+- "Done" button now shows a confirmation dialog before creating a work log
+- Duplicate quick-logs within 5 minutes are silently ignored server-side
+- Log Work modal Save button is now always visible (sticky footer, scrollable form)
+- Duration field in Log Work modal pre-fills from the schedule's estimated time
+- Dropdown empty labels now use natural language ("No specific asset", "Unspecified", etc.) instead of "---------"
+- Schedule detail subtitle no longer reads "Annually interval" — frequency labels stand alone
 - Failed HTMX requests now show an error toast instead of silently ignoring errors
 - Work-log modal can be dismissed by clicking the backdrop
 - Submit buttons are disabled during in-flight HTMX requests, preventing duplicate submissions
