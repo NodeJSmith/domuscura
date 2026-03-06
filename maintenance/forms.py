@@ -6,7 +6,7 @@ from typing import Any
 from django import forms
 from django.utils import timezone
 
-from .models import Asset, Frequency, Issue, Project, Schedule, WorkLog
+from .models import Asset, Frequency, Issue, Location, Project, Schedule, WorkLog
 
 
 class AssetForm(forms.ModelForm):
@@ -123,6 +123,15 @@ class IssueForm(forms.ModelForm):
         self.fields["project"].empty_label = "No linked project"
         if not self.instance.pk:
             self.fields["discovered_at"].initial = date.today()
+
+
+class LocationForm(forms.ModelForm):
+    class Meta:
+        model = Location
+        fields = ["name", "notes"]
+        widgets = {
+            "notes": forms.Textarea(attrs={"rows": 3}),
+        }
 
 
 class FrequencyForm(forms.ModelForm):

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}{% if editing %}Edit {{ location.name }}{% else %}New Location{% endif %} — Domuscura{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ul>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'location_list' %}">Locations</a></li>
+        <li aria-current="page">{% if editing %}Edit{% else %}New{% endif %}</li>
+    </ul>
+</nav>
+
+<h1>{% if editing %}Edit Location{% else %}New Location{% endif %}</h1>
+
+<form method="post" style="max-width: 28rem;">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <article aria-label="Validation errors" style="background: var(--pico-del-color); color: white; padding: 0.5rem 1rem;">
+        {{ form.errors }}
+    </article>
+    {% endif %}
+
+    <label>
+        Name *
+        {{ form.name }}
+    </label>
+
+    <label>
+        Notes
+        {{ form.notes }}
+        <small>Optional — any details about this area (e.g. "Unfinished basement, north end")</small>
+    </label>
+
+    <div class="form-actions">
+        <button type="submit">{% if editing %}Save Changes{% else %}Create Location{% endif %}</button>
+        <a href="{% url 'location_list' %}" role="button" class="outline secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

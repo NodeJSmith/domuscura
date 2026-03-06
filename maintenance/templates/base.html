@@ -33,6 +33,7 @@
             <li><a href="{% url 'asset_list' %}" {% if 'asset' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Assets</a></li>
             <li><a href="{% url 'spending_summary' %}" {% if 'spending' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Spending</a></li>
             <li><a href="{% url 'frequency_list' %}" {% if 'frequency' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Frequencies</a></li>
+            <li><a href="{% url 'location_list' %}" {% if 'location' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Locations</a></li>
         </ul>
     </nav>
 
