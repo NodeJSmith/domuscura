@@ -8,6 +8,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 
 ## [Unreleased]
 
+### Changed
+- "Done" button replaced by "Log Work" modal on dashboard and schedule list — logging work now always records cost, duration, and notes rather than creating a bare timestamp entry
+
 ### Added
 - Schedule frequencies are now a reusable model — create and manage intervals (Weekly, Monthly, Annually, etc.) from a dedicated Frequencies page; schedules pick one from the list
 - Schedule form: preset picker (Weekly / Monthly / Annually / etc.) auto-fills frequency fields — no more mental arithmetic

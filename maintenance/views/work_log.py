@@ -54,16 +54,9 @@ def log_work_form(request: HttpRequest, schedule_id: int | None = None) -> HttpR
         if form.is_valid():
             work_log = form.save()
 
-            # If this was for a schedule, return updated card
+            # For schedule logs, reload the page so status + history update
             if work_log.schedule:
-                work_log.schedule.schedule_status = work_log.schedule.compute_status(
-                    work_log.completed_at
-                )
-                return render(
-                    request,
-                    "partials/schedule_card.html",
-                    {"schedule": work_log.schedule},
-                )
+                return HttpResponse(status=204, headers={"HX-Refresh": "true"})
 
             # Otherwise, return success
             return HttpResponse(

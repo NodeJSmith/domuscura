@@ -34,21 +34,11 @@
                 <td><small>{{ schedule.frequency }}</small></td>
                 <td><small class="status-overdue">{{ schedule.schedule_status.days_overdue }} day{{ schedule.schedule_status.days_overdue|pluralize }} overdue</small></td>
                 <td>
-                    <div style="display: flex; gap: 0.25rem;">
-                        <button class="outline secondary btn-action"
-                                hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
-                                hx-target="#work-log-form-container"
-                                hx-swap="innerHTML"
-                                @click="$dispatch('work-log-open')">Log Work</button>
-                        <form hx-post="{% url 'quick_log' schedule.id %}"
-                              hx-swap="none"
-                              hx-confirm="Mark this done?"
-                              hx-on::after-request="if(event.detail.successful) this.closest('tr').remove()"
-                              style="margin: 0;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn-action">Done</button>
-                        </form>
-                    </div>
+                    <button class="outline secondary btn-action"
+                            hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
+                            hx-target="#work-log-form-container"
+                            hx-swap="innerHTML"
+                            @click="$dispatch('work-log-open')">Log Work</button>
                 </td>
             </tr>
             {% endfor %}
@@ -67,21 +57,11 @@
                 <td><small>{{ schedule.frequency }}</small></td>
                 <td><small>in {{ schedule.schedule_status.days_until_due }} day{{ schedule.schedule_status.days_until_due|pluralize }}</small></td>
                 <td>
-                    <div style="display: flex; gap: 0.25rem;">
-                        <button class="outline secondary btn-action"
-                                hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
-                                hx-target="#work-log-form-container"
-                                hx-swap="innerHTML"
-                                @click="$dispatch('work-log-open')">Log Work</button>
-                        <form hx-post="{% url 'quick_log' schedule.id %}"
-                              hx-swap="none"
-                              hx-confirm="Mark this done?"
-                              hx-on::after-request="if(event.detail.successful) this.closest('tr').remove()"
-                              style="margin: 0;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn-action">Done</button>
-                        </form>
-                    </div>
+                    <button class="outline secondary btn-action"
+                            hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
+                            hx-target="#work-log-form-container"
+                            hx-swap="innerHTML"
+                            @click="$dispatch('work-log-open')">Log Work</button>
                 </td>
             </tr>
             {% endfor %}
@@ -149,21 +129,11 @@
                         </td>
                     <td><small>{{ schedule.frequency }}</small></td>
                     <td>
-                        <div style="display: flex; gap: 0.25rem;">
-                            <button class="outline secondary btn-action"
-                                    hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
-                                    hx-target="#work-log-form-container"
-                                    hx-swap="innerHTML"
-                                    @click="$dispatch('work-log-open')">Log Work</button>
-                            <form hx-post="{% url 'quick_log' schedule.id %}"
-                                  hx-swap="none"
-                                  hx-confirm="Mark this done?"
-                                  hx-on::after-request="if(event.detail.successful) this.closest('tr').remove()"
-                                  style="margin: 0;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn-action">Done</button>
-                            </form>
-                        </div>
+                        <button class="outline secondary btn-action"
+                                hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
+                                hx-target="#work-log-form-container"
+                                hx-swap="innerHTML"
+                                @click="$dispatch('work-log-open')">Log Work</button>
                     </td>
                 </tr>
                 {% endfor %}

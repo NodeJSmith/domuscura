@@ -1,7 +1,6 @@
 <form hx-post="{% url 'work_log_form' %}"
       hx-target="#work-log-form-container"
-      hx-swap="{% if schedule %}none{% else %}innerHTML{% endif %}"
-      {% if schedule %}@htmx:after-request="if(event.detail.successful) $el.closest('dialog').close()"{% endif %}>
+      hx-swap="{% if schedule %}none{% else %}innerHTML{% endif %}">
     {% csrf_token %}
 
     {% if schedule %}

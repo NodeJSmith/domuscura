@@ -12,18 +12,15 @@
     <td>{% include "partials/status_badge.html" with status=schedule.schedule_status.status %}</td>
     <td>
         <div style="display: flex; gap: 0.25rem;">
-            <form hx-post="{% url 'quick_log' schedule.id %}"
-                  hx-target="#schedule-row-{{ schedule.id }}"
-                  hx-swap="outerHTML"
-                  hx-confirm="Mark this done?"
-                  style="margin: 0;">
-                {% csrf_token %}
-                <button type="submit"
-                        style="padding: 0.15rem 0.5rem; margin: 0; font-size: 0.8rem;"
-                        {% if not schedule.active %}disabled{% endif %}>
-                    Done
-                </button>
-            </form>
+            <button style="padding: 0.15rem 0.5rem; margin: 0; font-size: 0.8rem;"
+                    class="outline secondary"
+                    hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
+                    hx-target="#work-log-form-container"
+                    hx-swap="innerHTML"
+                    @click="$dispatch('work-log-open')"
+                    {% if not schedule.active %}disabled{% endif %}>
+                Log Work
+            </button>
             <a href="{% url 'schedule_edit' schedule.id %}"
                role="button" class="outline secondary"
                style="padding: 0.15rem 0.5rem; margin: 0; font-size: 0.8rem;">
