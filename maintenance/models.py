@@ -124,7 +124,6 @@ class Schedule(models.Model):
     frequency = models.ForeignKey(
         "Frequency", on_delete=models.PROTECT, related_name="schedules"
     )
-    season_hint = models.CharField(max_length=50, blank=True, default="")
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default="normal")
     impact = models.CharField(
         max_length=20, choices=IMPACT_CHOICES, blank=True, default=""

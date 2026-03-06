@@ -44,10 +44,7 @@
                 {% if schedule.impact and schedule.get_impact_display != schedule.effective_category %}
                 <dt>Impact</dt><dd>{{ schedule.get_impact_display }}</dd>
                 {% endif %}
-                {% if schedule.season_hint %}
-                <dt>Season</dt><dd>{{ schedule.season_hint }}</dd>
-                {% endif %}
-                {% if schedule.estimated_minutes %}
+{% if schedule.estimated_minutes %}
                 <dt>Est. Time</dt><dd>{{ schedule.estimated_minutes }} min</dd>
                 {% endif %}
                 {% if schedule.estimated_cost %}

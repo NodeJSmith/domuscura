@@ -30,7 +30,6 @@
                 <td>
                     <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>{% if schedule.priority != 'normal' %}<span class="priority-badge priority-badge--{{ schedule.priority }}">{{ schedule.get_priority_display }}</span>{% endif %}
                     {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
-                    {% if schedule.season_hint %}<br><small style="color: var(--dm-ink-muted);">{{ schedule.season_hint }}</small>{% endif %}
                 </td>
                 <td><small>{{ schedule.frequency }}</small></td>
                 <td><small class="status-overdue">{{ schedule.schedule_status.days_overdue }} day{{ schedule.schedule_status.days_overdue|pluralize }} overdue</small></td>
@@ -64,7 +63,6 @@
                 <td>
                     <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>{% if schedule.priority != 'normal' %}<span class="priority-badge priority-badge--{{ schedule.priority }}">{{ schedule.get_priority_display }}</span>{% endif %}
                     {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
-                    {% if schedule.season_hint %}<br><small style="color: var(--dm-ink-muted);">{{ schedule.season_hint }}</small>{% endif %}
                 </td>
                 <td><small>{{ schedule.frequency }}</small></td>
                 <td><small>in {{ schedule.schedule_status.days_until_due }} day{{ schedule.schedule_status.days_until_due|pluralize }}</small></td>
@@ -148,8 +146,7 @@
                     <td>
                         <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>{% if schedule.priority != 'normal' %}<span class="priority-badge priority-badge--{{ schedule.priority }}">{{ schedule.get_priority_display }}</span>{% endif %}
                         {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
-                        {% if schedule.season_hint %}<br><small style="color: var(--dm-ink-muted);">{{ schedule.season_hint }}</small>{% endif %}
-                    </td>
+                        </td>
                     <td><small>{{ schedule.frequency }}</small></td>
                     <td>
                         <div style="display: flex; gap: 0.25rem;">

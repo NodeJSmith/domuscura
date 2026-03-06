@@ -104,7 +104,7 @@ class Command(BaseCommand):
         rows = tmp.execute(
             """
             SELECT name, description, category, frequency_days, frequency_label,
-                   season_hint, priority, impact, estimated_minutes, estimated_cost,
+                   priority, impact, estimated_minutes, estimated_cost,
                    pro_recommended, active, notes
             FROM schedules
             """
@@ -122,14 +122,13 @@ class Command(BaseCommand):
                 description=row[1] or "",
                 category=row[2] or "",
                 frequency=frequency,
-                season_hint=row[5] or "",
-                priority=row[6] or "normal",
-                impact=row[7] or "",
-                estimated_minutes=row[8],
-                estimated_cost=row[9],
-                pro_recommended=bool(row[10]),
-                active=bool(row[11]) if row[11] is not None else True,
-                notes=row[12] or "",
+                priority=row[5] or "normal",
+                impact=row[6] or "",
+                estimated_minutes=row[7],
+                estimated_cost=row[8],
+                pro_recommended=bool(row[9]),
+                active=bool(row[10]) if row[10] is not None else True,
+                notes=row[11] or "",
             )
 
         tmp.close()

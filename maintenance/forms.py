@@ -153,7 +153,6 @@ class ScheduleForm(forms.ModelForm):
             "location",
             "category",
             "frequency",
-            "season_hint",
             "priority",
             "impact",
             "estimated_minutes",
@@ -175,7 +174,6 @@ class ScheduleForm(forms.ModelForm):
         self.fields["asset"].required = False
         self.fields["location"].required = False
         self.fields["category"].required = False
-        self.fields["season_hint"].required = False
         self.fields["impact"].required = False
         self.fields["estimated_minutes"].required = False
         self.fields["estimated_cost"].required = False
