@@ -185,9 +185,9 @@ class WorkLogForm(forms.ModelForm):
             "notes",
         ]
         widgets = {
-            "completed_at": forms.DateTimeInput(
-                attrs={"type": "datetime-local"},
-                format="%Y-%m-%dT%H:%M",
+            "completed_at": forms.DateInput(
+                attrs={"type": "date"},
+                format="%Y-%m-%d",
             ),
             "notes": forms.Textarea(attrs={"rows": 3}),
             "cost": forms.NumberInput(attrs={"step": "0.01", "min": "0"}),
@@ -213,6 +213,8 @@ class WorkLogForm(forms.ModelForm):
         val = self.cleaned_data.get("completed_at")
         if not val:
             return timezone.now()
+        if isinstance(val, date) and not isinstance(val, datetime):
+            return timezone.make_aware(datetime.combine(val, datetime.min.time()))
         return val
 
     def clean(self) -> dict[str, Any]:

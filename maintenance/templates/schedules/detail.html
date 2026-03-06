@@ -45,7 +45,7 @@
                 {% if schedule.asset %}
                 <dt>Asset</dt><dd>{{ schedule.asset.name }}</dd>
                 {% endif %}
-                {% if schedule.impact %}
+                {% if schedule.impact and schedule.get_impact_display != schedule.effective_category %}
                 <dt>Impact</dt><dd>{{ schedule.get_impact_display }}</dd>
                 {% endif %}
                 {% if schedule.season_hint %}
@@ -98,6 +98,11 @@
             <p><strong class="status-ok">Up to date</strong> — due {{ schedule.schedule_status.next_due_date|date:"M j, Y" }}</p>
             {% elif schedule.schedule_status.status == "never_done" %}
             <p><strong class="status-never-done">Never completed</strong> — no work logs yet</p>
+            <button class="outline secondary btn-card"
+                    hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
+                    hx-target="#work-log-form-container"
+                    hx-swap="innerHTML"
+                    @click="$dispatch('work-log-open')">Log Work with Details</button>
             {% endif %}
 
             {% if schedule.schedule_status.last_completed %}
@@ -106,6 +111,8 @@
         </article>
     </div>
 </div>
+
+{% include "partials/work_log_modal.html" %}
 
 <!-- Work Log History -->
 <article>

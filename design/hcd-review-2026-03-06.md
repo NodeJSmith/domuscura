@@ -111,7 +111,7 @@ The Frequency Label field already exists for display — tie it to a smart defau
 **File:** `maintenance/templates/schedules/detail.html`
 **Harm:** The schedule subtitle reads "Annually interval · Critical priority". "Annually interval" is not English. A user who reads it will feel the software is unpolished.
 **Fix:** Change to "Annual interval" or just show the frequency label directly: "Annually · Critical priority".
-**Status:** Open
+**Status:** Done — frequency labels stand alone; raw day counts render as "every N day(s)"
 
 ---
 
@@ -120,7 +120,7 @@ The Frequency Label field already exists for display — tie it to a smart defau
 **File:** `maintenance/templates/schedules/detail.html`
 **Harm:** The detail page shows Category: Safety and Impact: Safety as separate rows. For this schedule they're identical, which raises the question: are these the same field? Why are both shown? A user setting up their own schedule won't know which to fill.
 **Fix:** On the detail page, only show Impact if it differs from Category, or collapse them into a single row. On the edit form, add brief helper text distinguishing the two concepts.
-**Status:** Open
+**Status:** Done — detail page suppresses Impact row when it matches Category; Impact field on edit form has helper text explaining the distinction
 
 ---
 
@@ -129,7 +129,7 @@ The Frequency Label field already exists for display — tie it to a smart defau
 **File:** Schedule edit form
 **Harm:** The field shows `e.g. "Spring", "Fall"` but nothing explains what this does. Does it show on the dashboard? Affect scheduling? Is it cosmetic? A homeowner filling out the form will skip it or guess.
 **Fix:** Add helper text: "Optional — displayed as a reminder of when to do this task (e.g. 'Best done in Fall before heating season')."
-**Status:** Open
+**Status:** Done — helper text added to Season Hint field on edit form
 
 ---
 
@@ -138,7 +138,7 @@ The Frequency Label field already exists for display — tie it to a smart defau
 **File:** Schedule edit form
 **Harm:** The checkbox exists with no explanation of what it changes in the system. Does it affect display? Generate different reminders? Flag for contractor scheduling? Users can't make an informed choice.
 **Fix:** Add helper text: "Mark if this task should be done by a licensed contractor or specialist." If it has no functional effect yet, remove it until it does.
-**Status:** Open
+**Status:** Done — helper text added to checkbox on edit form
 
 ---
 
@@ -147,7 +147,7 @@ The Frequency Label field already exists for display — tie it to a smart defau
 **File:** `maintenance/templates/partials/work_log_form.html`
 **Harm:** "Completed at" shows `mm/dd/yyyy, --:-- --` — a datetime-local input requiring both date and time. For home maintenance, the time of day is irrelevant (did you clean the gutters at 2:15pm or 3:00pm?). The extra complexity makes the field more intimidating, and on mobile the time picker is a second interaction step.
 **Fix:** Change to `<input type="date">` and store only the date. If exact timestamps are needed for audit purposes, store server-side `created_at` automatically — don't burden the user with it.
-**Status:** Open
+**Status:** Done — WorkLogForm uses DateInput; clean_completed_at converts date → midnight datetime
 
 ---
 
@@ -156,7 +156,7 @@ The Frequency Label field already exists for display — tie it to a smart defau
 **File:** `maintenance/templates/schedules/detail.html`
 **Harm:** The two-column layout places Details (left, dense) next to Status (right, sparse: "Status / Mark Done / Never completed — no work logs yet"). The right card has a large empty white box beneath the content. It looks like something is missing.
 **Fix:** For the empty-history state, the Status card could include the Log Work form inline (already available via HTMX). Or the two-column layout could collapse to single-column until there's history to display.
-**Status:** Open
+**Status:** Done — "Log Work with Details" button shown in status card when never_done; work_log_modal included on detail page
 
 ---
 

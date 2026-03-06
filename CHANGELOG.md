@@ -11,9 +11,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and 
 ### Added
 - Schedule form: preset picker (Weekly / Monthly / Annually / etc.) auto-fills frequency fields — no more mental arithmetic
 - Spending page: empty state explanation when no costs have been recorded yet
+- Schedule detail: "Log Work with Details" button in status card when a schedule has never been completed
 
 ### Fixed
 - New Issue form: Discovered Date now defaults to today instead of blank
+- Work log form: "Completed on" is now a simple date picker — no time-of-day required
+- Schedule detail: duplicate Impact row hidden when it matches the Category
+- Schedule edit form: helper text added for Impact, Season Hint, and Professional Recommended fields
 
 ### Added
 - Responsive CSS: schedule card grids now wrap instead of cramming into a single unreadable row (#2)
