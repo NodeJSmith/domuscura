@@ -1,1 +1,322 @@
-/* Custom overrides for Domuscura — PicoCSS handles most styling */
+/* Domuscura design system — slate blue-gray on warm paper */
+
+/* ─── Token layer ───────────────────────────────────────────────────────── */
+:root {
+    /* Brand */
+    --dm-slate:        #4a6b7a;
+    --dm-slate-dark:   #3a5668;
+    --dm-slate-tint:   rgba(74, 107, 122, 0.08);
+    --dm-slate-focus:  rgba(74, 107, 122, 0.25);
+
+    /* Surfaces */
+    --dm-paper:        #fafaf8;
+    --dm-paper-raised: #ffffff;
+    --dm-paper-inset:  #f1f1ee;
+
+    /* Text */
+    --dm-ink:          #1e2a30;
+    --dm-ink-secondary:#546870;
+    --dm-ink-muted:    #8a9da5;
+
+    /* Borders */
+    --dm-border:       rgba(74, 107, 122, 0.14);
+
+    /* Semantic */
+    --dm-ok:           #3d6a52;
+    --dm-warning:      #c2711a;
+    --dm-danger:       #b83232;
+
+    /* Backward-compat aliases (referenced in status_badge.html, issues/list.html) */
+    --color-warning:          var(--dm-warning);
+    --color-severity-major:   #b35c00;
+
+    /* Scale */
+    --dm-font-size:    93.75%;   /* 15px base */
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --dm-slate:        #7aaabb;
+        --dm-slate-dark:   #8fbdcc;
+        --dm-slate-tint:   rgba(122, 170, 187, 0.10);
+        --dm-slate-focus:  rgba(122, 170, 187, 0.28);
+
+        --dm-paper:        #192028;
+        --dm-paper-raised: #1f2c36;
+        --dm-paper-inset:  #141c23;
+
+        --dm-ink:          #e0eaed;
+        --dm-ink-secondary:#92adb8;
+        --dm-ink-muted:    #5c7a87;
+
+        --dm-border:       rgba(122, 170, 187, 0.14);
+
+        --dm-ok:           #5aaa7a;
+        --dm-warning:      #f0a64b;
+        --dm-danger:       #e06060;
+
+        --color-warning:          var(--dm-warning);
+        --color-severity-major:   #e07820;
+    }
+}
+
+/* ─── PicoCSS overrides ─────────────────────────────────────────────────── */
+:root {
+    --pico-font-size:         var(--dm-font-size);
+    --pico-primary:           var(--dm-slate);
+    --pico-primary-hover:     var(--dm-slate-dark);
+    --pico-primary-focus:     var(--dm-slate-focus);
+    --pico-background-color:  var(--dm-paper);
+    --pico-card-background-color: var(--dm-paper-raised);
+    --pico-muted-color:       var(--dm-ink-muted);
+    --pico-muted-border-color:var(--dm-border);
+    --pico-ins-color:         var(--dm-ok);
+    --pico-del-color:         var(--dm-danger);
+}
+
+/* ─── Layout ────────────────────────────────────────────────────────────── */
+main { padding-top: 1rem; }
+
+/* ─── Navigation ────────────────────────────────────────────────────────── */
+body > nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--dm-paper);
+    border-bottom: 1px solid var(--dm-border);
+}
+
+nav a[aria-current="page"] {
+    font-weight: bold;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* ─── Status text ────────────────────────────────────────────────────────── */
+.status-overdue    { color: var(--dm-danger);   font-weight: bold; }
+.status-due-soon   { color: var(--dm-warning);  font-weight: bold; }
+.status-ok         { color: var(--dm-ok); }
+.status-never-done { color: var(--dm-ink-muted); }
+
+/* ─── Priority badges ────────────────────────────────────────────────────── */
+.priority-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 0.15em 0.5em;
+    border-radius: 0.25rem;
+    vertical-align: middle;
+    margin-left: 0.4rem;
+}
+.priority-badge--critical {
+    background: rgba(184, 50, 50, 0.12);
+    color: var(--dm-danger);
+}
+.priority-badge--high {
+    background: rgba(194, 113, 26, 0.12);
+    color: var(--dm-warning);
+}
+.priority-badge--low {
+    background: var(--dm-slate-tint);
+    color: var(--dm-ink-secondary);
+}
+
+/* ─── Cards grid ────────────────────────────────────────────────────────── */
+/* Override PicoCSS .grid so cards wrap cleanly rather than cramming one row */
+.grid {
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+}
+
+/* Dashboard filters — compact inline row */
+.dashboard-filters {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.dashboard-filters select {
+    width: auto;
+    margin-bottom: 0;
+}
+.dashboard-filters a[role="button"] {
+    margin-bottom: 0;
+    padding: 0.4rem 0.75rem;
+}
+
+/* Spending summary: always 2×2 */
+.spending-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--pico-spacing, 1rem);
+}
+
+/* ─── Schedule detail layout ─────────────────────────────────────────────── */
+/* 2:1 split — Details card gets more room than sparse Status card */
+.detail-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--pico-spacing, 1rem);
+    align-items: start;
+}
+@media (max-width: 600px) {
+    .detail-grid { grid-template-columns: 1fr; }
+}
+
+/* Horizontal key-value pairs inside the Details dl */
+.detail-dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.2rem 1rem;
+    align-items: baseline;
+    margin: 0.75rem 0 0;
+}
+.detail-dl dt {
+    color: var(--dm-ink-secondary);
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+.detail-dl dd {
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+/* Status card header — label + action button side by side */
+.status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.status-header button {
+    padding: 0.25rem 0.75rem;
+    margin: 0;
+}
+
+/* ─── Tables ────────────────────────────────────────────────────────────── */
+/* Responsive scroll */
+figure {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent mid-cell wrapping (except name column) */
+table th,
+table td {
+    white-space: nowrap;
+}
+table th:first-child,
+table td:first-child {
+    white-space: normal;
+    min-width: 8rem;
+}
+
+figure > table {
+    min-width: 32rem;
+}
+
+/* Dashboard group header rows */
+.table-group-header td {
+    background: var(--pico-card-sectioning-background-color);
+    padding: 0.35rem var(--pico-spacing);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--dm-border);
+}
+.table-group-header:first-child td {
+    border-top: none;
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
+/* Table / modal action buttons — 44px min touch target */
+.btn-action {
+    padding: 0.6rem 0.75rem;
+    margin: 0;
+    font-size: 0.85rem;
+    min-height: 2.75rem;
+}
+
+/* Card action buttons */
+.btn-card {
+    padding: 0.5rem 0.75rem;
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+/* Form save/cancel row — flex container for Save + Cancel side by side.
+   !important is required: PicoCSS sets width:100% on button elements and wins on
+   specificity without it. This rule is intentionally narrow (only .form-actions). */
+.form-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.form-actions button,
+.form-actions a[role="button"] {
+    width: auto !important;
+    margin-bottom: 0;
+}
+
+/* ─── Filter strip ───────────────────────────────────────────────────────── */
+.filter-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.filter-actions button,
+.filter-actions a[role="button"] {
+    width: auto;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    margin-bottom: 0;
+}
+
+/* ─── Work log modal ─────────────────────────────────────────────────────── */
+#work-log-modal article {
+    display: flex;
+    flex-direction: column;
+    max-height: 90svh;
+}
+#work-log-modal #work-log-form-container {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+#work-log-modal .modal-footer {
+    position: sticky;
+    bottom: 0;
+    background: var(--pico-card-background-color);
+    padding-top: 0.5rem;
+    z-index: 1;
+}
+#work-log-modal .modal-footer [type="submit"] {
+    margin-bottom: 0;
+}
+
+/* ─── Sort indicators ───────────────────────────────────────────────────── */
+.sort-asc, .sort-desc {
+    font-size: 0.75em;
+    opacity: 0.7;
+}
+
+/* ─── HTMX states ────────────────────────────────────────────────────────── */
+form.htmx-request [type="submit"],
+button.htmx-request {
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: wait;
+}
+
+/* ─── Responsive breakpoints ─────────────────────────────────────────────── */
+@media (max-width: 600px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+    .spending-summary {
+        grid-template-columns: 1fr;
+    }
+    .col-mobile-hide {
+        display: none;
+    }
+}

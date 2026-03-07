@@ -1,5 +1,6 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,30 +9,16 @@
     <!-- PicoCSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
 
+    <!-- App overrides (loads after PicoCSS to ensure precedence) -->
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
 
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <style>
-        :root {
-            --pico-font-size: 93.75%;
-        }
-        body > nav {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: var(--pico-background-color);
-            border-bottom: 1px solid var(--pico-muted-border-color);
-        }
-        .status-overdue { color: var(--pico-del-color); font-weight: bold; }
-        .status-due-soon { color: var(--pico-ins-color); font-weight: bold; }
-        .status-ok { color: var(--pico-primary); }
-        .status-never-done { color: var(--pico-muted-color); }
-        main { padding-top: 1rem; }
-    </style>
-    {% block extra_head %}{% endblock %}
+{% block extra_head %}{% endblock %}
 </head>
 <body>
     <nav class="container-fluid">
@@ -39,12 +26,15 @@
             <li><strong><a href="{% url 'dashboard' %}">Domuscura</a></strong></li>
         </ul>
         <ul>
-            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-            <li><a href="{% url 'schedule_list' %}">Schedules</a></li>
-            <li><a href="{% url 'project_list' %}">Projects</a></li>
-            <li><a href="{% url 'issue_list' %}">Issues</a></li>
-            <li><a href="{% url 'asset_list' %}">Assets</a></li>
-            <li><a href="{% url 'spending_summary' %}">Spending</a></li>
+            <li><a href="{% url 'dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}aria-current="page"{% endif %}>Dashboard</a></li>
+            <li><a href="{% url 'schedule_list' %}" {% if 'schedule' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Schedules</a></li>
+            <li><a href="{% url 'project_list' %}" {% if 'project' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Projects</a></li>
+            <li><a href="{% url 'issue_list' %}" {% if 'issue' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Issues</a></li>
+            <li><a href="{% url 'asset_list' %}" {% if 'asset' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Assets</a></li>
+            <li><a href="{% url 'spending_summary' %}" {% if 'spending' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Spending</a></li>
+            <li><a href="{% url 'category_list' %}" {% if 'category' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Categories</a></li>
+            <li><a href="{% url 'frequency_list' %}" {% if 'frequency' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Frequencies</a></li>
+            <li><a href="{% url 'location_list' %}" {% if 'location' in request.resolver_match.url_name %}aria-current="page"{% endif %}>Locations</a></li>
         </ul>
     </nav>
 
@@ -56,5 +46,25 @@
         <hr>
         <small>Domuscura &mdash; domus (house) + cura (care)</small>
     </footer>
+
+    <!-- Error toast for failed HTMX requests -->
+    <div x-data="{ visible: false, message: '' }"
+         @show-error.window="message = $event.detail.message; visible = true; setTimeout(() => visible = false, 4000)"
+         x-show="visible"
+         x-transition
+         role="alert"
+         aria-live="polite"
+         style="position:fixed;bottom:1rem;right:1rem;z-index:200;background:var(--pico-del-color);color:white;padding:0.75rem 1.25rem;border-radius:0.25rem;max-width:20rem;box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+        <span x-text="message"></span>
+    </div>
+    <script>
+        ['htmx:responseError', 'htmx:sendError'].forEach(function(ev) {
+            document.body.addEventListener(ev, function() {
+                window.dispatchEvent(new CustomEvent('show-error', {
+                    detail: { message: 'Something went wrong. Please try again.' }
+                }));
+            });
+        });
+    </script>
 </body>
 </html>

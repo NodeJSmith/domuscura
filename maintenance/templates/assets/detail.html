@@ -67,22 +67,25 @@
         {% if schedules %}
         <article>
             <header><strong>Maintenance Schedules</strong></header>
+            <figure>
             <table>
                 <tbody>
                     {% for s in schedules %}
                     <tr>
                         <td><a href="{% url 'schedule_detail' s.id %}">{{ s.name }}</a></td>
-                        <td><small>{{ s.frequency_label|default:s.frequency_days }}</small></td>
+                        <td><small>{{ s.frequency }}</small></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            </figure>
         </article>
         {% endif %}
 
         {% if projects %}
         <article>
             <header><strong>Projects</strong></header>
+            <figure>
             <table>
                 <tbody>
                     {% for p in projects %}
@@ -93,12 +96,14 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </figure>
         </article>
         {% endif %}
 
         {% if issues %}
         <article>
             <header><strong>Issues</strong></header>
+            <figure>
             <table>
                 <tbody>
                     {% for i in issues %}
@@ -110,12 +115,14 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </figure>
         </article>
         {% endif %}
 
         {% if work_logs %}
         <article>
             <header><strong>Recent Work</strong></header>
+            <figure>
             <table>
                 <tbody>
                     {% for log in work_logs %}
@@ -129,6 +136,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </figure>
         </article>
         {% endif %}
     </div>

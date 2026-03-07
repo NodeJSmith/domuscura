@@ -35,7 +35,7 @@
                 </select>
             </label>
         </div>
-        <div style="display: flex; gap: 0.5rem;">
+        <div class="filter-actions">
             <button type="submit">Filter</button>
             <a href="{% url 'project_list' %}" role="button" class="outline secondary">Clear</a>
             <a href="{% url 'project_create' %}" role="button" class="outline" style="margin-left: auto;">+ New Project</a>
@@ -77,7 +77,15 @@
             </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7">No projects match your filters.</td></tr>
+        <tr>
+            <td colspan="7">
+                {% if any_exist %}
+                    No projects match your filters.
+                {% else %}
+                    No projects yet. Projects track one-time work like replacing a water heater or repainting a room — unlike schedules, they have a start and an end. <a href="{% url 'project_create' %}">Add your first project</a>.
+                {% endif %}
+            </td>
+        </tr>
         {% endfor %}
     </tbody>
 </table>

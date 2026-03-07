@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{% if editing %}Edit {{ frequency.label }}{% else %}New Frequency{% endif %} — Domuscura{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ul>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'frequency_list' %}">Frequencies</a></li>
+        <li aria-current="page">{% if editing %}Edit{% else %}New{% endif %}</li>
+    </ul>
+</nav>
+
+<h1>{% if editing %}Edit Frequency{% else %}New Frequency{% endif %}</h1>
+
+<form method="post" style="max-width: 28rem;">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <article aria-label="Validation errors" style="background: var(--pico-del-color); color: white; padding: 0.5rem 1rem;">
+        {{ form.errors }}
+    </article>
+    {% endif %}
+
+    <label>
+        Label *
+        {{ form.label }}
+        <small>How it appears in dropdowns and throughout the app (e.g. "Monthly", "Annually")</small>
+    </label>
+
+    <label>
+        Days *
+        {{ form.days }}
+        <small>Number of days between completions (e.g. 30 for monthly, 365 for annually)</small>
+    </label>
+
+    <div class="form-actions">
+        <button type="submit">{% if editing %}Save Changes{% else %}Create Frequency{% endif %}</button>
+        <a href="{% url 'frequency_list' %}" role="button" class="outline secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

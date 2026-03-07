@@ -1,7 +1,7 @@
 {% if status == "overdue" %}
 <mark style="background: var(--pico-del-color); color: white; padding: 0.1rem 0.4rem; font-size: 0.75rem; border-radius: 0.25rem;">Overdue</mark>
 {% elif status == "due_soon" %}
-<mark style="background: #e67e22; color: white; padding: 0.1rem 0.4rem; font-size: 0.75rem; border-radius: 0.25rem;">Due Soon</mark>
+<mark style="background: var(--color-warning); color: white; padding: 0.1rem 0.4rem; font-size: 0.75rem; border-radius: 0.25rem;">Due Soon</mark>
 {% elif status == "ok" %}
 <mark style="background: var(--pico-ins-color); color: white; padding: 0.1rem 0.4rem; font-size: 0.75rem; border-radius: 0.25rem;">OK</mark>
 {% elif status == "never_done" %}
@@ -12,4 +12,6 @@
 <mark style="padding: 0.1rem 0.4rem; font-size: 0.75rem; border-radius: 0.25rem;">Pending</mark>
 {% elif status == "in_progress" %}
 <mark style="background: var(--pico-primary); color: white; padding: 0.1rem 0.4rem; font-size: 0.75rem; border-radius: 0.25rem;">In Progress</mark>
+{% elif status %}
+<mark>{{ status }}</mark>
 {% endif %}

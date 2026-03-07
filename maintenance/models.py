@@ -1,5 +1,22 @@
+from __future__ import annotations
+
+from datetime import date, datetime
+from typing import NamedTuple
+
 from django.db import models
+from django.db.models import QuerySet
 from django.utils import timezone
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name_plural = "categories"
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class Location(models.Model):
@@ -10,27 +27,18 @@ class Location(models.Model):
     class Meta:
         ordering = ["name"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
 class Asset(models.Model):
-    CATEGORY_CHOICES = [
-        ("HVAC", "HVAC"),
-        ("Plumbing", "Plumbing"),
-        ("Electrical", "Electrical"),
-        ("Exterior", "Exterior"),
-        ("Interior", "Interior"),
-        ("Appliance", "Appliance"),
-        ("Safety", "Safety"),
-        ("Structural", "Structural"),
-    ]
-
     name = models.CharField(max_length=200)
     location = models.ForeignKey(
         Location, on_delete=models.SET_NULL, null=True, blank=True
     )
-    category = models.CharField(max_length=50, blank=True, default="")
+    category = models.ForeignKey(
+        "Category", on_delete=models.SET_NULL, null=True, blank=True
+    )
     make = models.CharField(max_length=200, blank=True, default="")
     model_name = models.CharField(
         max_length=200, blank=True, default="", db_column="model"
@@ -47,13 +55,13 @@ class Asset(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["category", "name"]
+        ordering = ["category__name", "name"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     @property
-    def warranty_status(self):
+    def warranty_status(self) -> str:
         if not self.warranty_expires:
             return "unknown"
         if self.warranty_expires < timezone.now().date():
@@ -61,11 +69,34 @@ class Asset(models.Model):
         return "active"
 
     @property
-    def age_years(self):
+    def age_years(self) -> int | None:
         if not self.install_date:
             return None
         delta = timezone.now().date() - self.install_date
         return delta.days // 365
+
+
+class Frequency(models.Model):
+    days = models.PositiveIntegerField()
+    label = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ["days"]
+        verbose_name_plural = "frequencies"
+
+    def __str__(self) -> str:
+        return self.label or f"Every {self.days} day{'s' if self.days != 1 else ''}"
+
+
+class ScheduleStatus(NamedTuple):
+    """Immutable computed status for a Schedule. Returned by Schedule.compute_status()."""
+
+    status: str  # "never_done" | "overdue" | "due_soon" | "ok"
+    last_completed: datetime | None
+    days_since_last: int | None
+    next_due_date: date | None
+    days_overdue: int | None  # set only when status == "overdue"
+    days_until_due: int | None  # set when status in ("due_soon", "ok")
 
 
 class Schedule(models.Model):
@@ -91,10 +122,12 @@ class Schedule(models.Model):
     location = models.ForeignKey(
         Location, on_delete=models.SET_NULL, null=True, blank=True
     )
-    category = models.CharField(max_length=50, blank=True, default="")
-    frequency_days = models.PositiveIntegerField()
-    frequency_label = models.CharField(max_length=50, blank=True, default="")
-    season_hint = models.CharField(max_length=50, blank=True, default="")
+    category = models.ForeignKey(
+        "Category", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    frequency = models.ForeignKey(
+        "Frequency", on_delete=models.PROTECT, related_name="schedules"
+    )
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default="normal")
     impact = models.CharField(
         max_length=20, choices=IMPACT_CHOICES, blank=True, default=""
@@ -111,19 +144,19 @@ class Schedule(models.Model):
     class Meta:
         ordering = ["name"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     @property
-    def effective_category(self):
+    def effective_category(self) -> str:
         if self.category:
-            return self.category
-        if self.asset:
-            return self.asset.category
+            return self.category.name
+        if self.asset and self.asset.category:
+            return self.asset.category.name
         return ""
 
     @property
-    def effective_location(self):
+    def effective_location(self) -> Location | None:
         if self.location:
             return self.location
         if self.asset and self.asset.location:
@@ -131,7 +164,7 @@ class Schedule(models.Model):
         return None
 
     @classmethod
-    def annotate_last_completed(cls, queryset):
+    def annotate_last_completed(cls, queryset: QuerySet[Schedule]) -> QuerySet[Schedule]:
         """Annotate a Schedule queryset with last_completed from WorkLog."""
         from django.db.models import OuterRef, Subquery
 
@@ -142,36 +175,55 @@ class Schedule(models.Model):
         )
         return queryset.annotate(last_completed=Subquery(last_completion))
 
-    def compute_status(self, last_completed, now=None):
-        """Compute and set status attributes based on last completion time.
-
-        Sets: status, days_since_last, next_due_date, and either
-        days_overdue or days_until_due on self.
-        """
+    def compute_status(
+        self, last_completed: datetime | None, now: datetime | None = None
+    ) -> ScheduleStatus:
+        """Return a ScheduleStatus for this schedule. Pure — no side effects on self."""
         from datetime import timedelta
 
         if now is None:
             now = timezone.now()
 
-        self.last_completed = last_completed
-
         if last_completed is None:
-            self.status = "never_done"
-            self.days_since_last = None
-            self.next_due_date = None
+            return ScheduleStatus(
+                status="never_done",
+                last_completed=None,
+                days_since_last=None,
+                next_due_date=None,
+                days_overdue=None,
+                days_until_due=None,
+            )
+
+        days_since = (now - last_completed).days
+        next_due_date = (last_completed + timedelta(days=self.frequency.days)).date()
+
+        if days_since > self.frequency.days:
+            return ScheduleStatus(
+                status="overdue",
+                last_completed=last_completed,
+                days_since_last=days_since,
+                next_due_date=next_due_date,
+                days_overdue=days_since - self.frequency.days,
+                days_until_due=None,
+            )
+        elif days_since > self.frequency.days * 0.85:
+            return ScheduleStatus(
+                status="due_soon",
+                last_completed=last_completed,
+                days_since_last=days_since,
+                next_due_date=next_due_date,
+                days_overdue=None,
+                days_until_due=self.frequency.days - days_since,
+            )
         else:
-            days_since = (now - last_completed).days
-            self.days_since_last = days_since
-            self.next_due_date = (last_completed + timedelta(days=self.frequency_days)).date()
-            if days_since > self.frequency_days:
-                self.status = "overdue"
-                self.days_overdue = days_since - self.frequency_days
-            elif days_since > self.frequency_days * 0.85:
-                self.status = "due_soon"
-                self.days_until_due = self.frequency_days - days_since
-            else:
-                self.status = "ok"
-                self.days_until_due = self.frequency_days - days_since
+            return ScheduleStatus(
+                status="ok",
+                last_completed=last_completed,
+                days_since_last=days_since,
+                next_due_date=next_due_date,
+                days_overdue=None,
+                days_until_due=self.frequency.days - days_since,
+            )
 
 
 class Project(models.Model):
@@ -193,7 +245,9 @@ class Project(models.Model):
     location = models.ForeignKey(
         Location, on_delete=models.SET_NULL, null=True, blank=True
     )
-    category = models.CharField(max_length=50, blank=True, default="")
+    category = models.ForeignKey(
+        "Category", on_delete=models.SET_NULL, null=True, blank=True
+    )
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default="normal")
     impact = models.CharField(
         max_length=20, choices=IMPACT_CHOICES, blank=True, default=""
@@ -212,11 +266,11 @@ class Project(models.Model):
     class Meta:
         ordering = ["-priority", "target_date"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     @property
-    def effective_status(self):
+    def effective_status(self) -> str:
         if self.status in ("done", "cancelled"):
             return self.status
         if self.status == "someday":
@@ -289,7 +343,7 @@ class Issue(models.Model):
             "discovered_at",
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.summary
 
 
@@ -333,7 +387,7 @@ class WorkLog(models.Model):
             ),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         source = self.schedule or self.project or "Ad-hoc"
         return f"{source} — {self.completed_at:%Y-%m-%d}"
 
@@ -388,5 +442,5 @@ class Document(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.filename

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Locations — Domuscura{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ul>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li aria-current="page">Locations</li>
+    </ul>
+</nav>
+
+<hgroup>
+    <h1>Locations</h1>
+    <p>Rooms and areas in your home — used to organise assets, schedules, projects, and issues.</p>
+</hgroup>
+
+{% if locations %}
+<article>
+    <figure>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Notes</th>
+                <th>Used by</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for loc in locations %}
+            {% with total=loc.asset_count|add:loc.schedule_count|add:loc.project_count|add:loc.issue_count %}
+            <tr>
+                <td><strong>{{ loc.name }}</strong></td>
+                <td>{{ loc.notes|default:"—"|truncatewords:10 }}</td>
+                <td>
+                    <small>
+                        {% if loc.asset_count %}{{ loc.asset_count }} asset{{ loc.asset_count|pluralize }}{% endif %}
+                        {% if loc.schedule_count %}{% if loc.asset_count %} · {% endif %}{{ loc.schedule_count }} schedule{{ loc.schedule_count|pluralize }}{% endif %}
+                        {% if loc.project_count %}{% if loc.asset_count or loc.schedule_count %} · {% endif %}{{ loc.project_count }} project{{ loc.project_count|pluralize }}{% endif %}
+                        {% if loc.issue_count %}{% if loc.asset_count or loc.schedule_count or loc.project_count %} · {% endif %}{{ loc.issue_count }} issue{{ loc.issue_count|pluralize }}{% endif %}
+                        {% if not loc.asset_count and not loc.schedule_count and not loc.project_count and not loc.issue_count %}—{% endif %}
+                    </small>
+                </td>
+                <td>
+                    <div style="display: flex; gap: 0.25rem;">
+                        <a href="{% url 'location_edit' loc.pk %}" role="button" class="outline secondary btn-action">Edit</a>
+                        <form hx-post="{% url 'location_delete' loc.pk %}"
+                              hx-confirm="Delete '{{ loc.name }}'?{% if total %} This will remove it from {{ total }} linked item{{ total|pluralize }}.{% endif %}"
+                              style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="outline secondary btn-action">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endwith %}
+            {% endfor %}
+        </tbody>
+    </table>
+    </figure>
+</article>
+{% else %}
+<article>
+    <p>No locations yet. <a href="{% url 'location_create' %}">Add the first one.</a></p>
+</article>
+{% endif %}
+
+<div class="form-actions">
+    <a href="{% url 'location_create' %}" role="button">+ New Location</a>
+</div>
+{% endblock %}

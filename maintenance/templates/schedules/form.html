@@ -33,6 +33,8 @@
     </article>
     {% endif %}
 
+    <p><small>Fields marked * are required.</small></p>
+
     <label>
         Name *
         {{ form.name }}
@@ -55,25 +57,15 @@
         <label>
             Category
             {{ form.category }}
+            <small><a href="{% url 'category_list' %}" target="_blank">Manage categories</a></small>
         </label>
     </div>
 
-    <div class="grid">
-        <label>
-            Frequency (days) *
-            {{ form.frequency_days }}
-        </label>
-        <label>
-            Frequency Label
-            {{ form.frequency_label }}
-            <small>e.g. "Monthly", "Every 3 months"</small>
-        </label>
-        <label>
-            Season Hint
-            {{ form.season_hint }}
-            <small>e.g. "Spring", "Fall"</small>
-        </label>
-    </div>
+    <label>
+        How often? *
+        {{ form.frequency }}
+        <small>Can't find the right interval? <a href="{% url 'frequency_list' %}" target="_blank">Manage frequencies</a></small>
+    </label>
 
     <div class="grid">
         <label>
@@ -83,6 +75,7 @@
         <label>
             Impact
             {{ form.impact }}
+            <small>What suffers if this is skipped (e.g. Safety, Comfort, Cost) — may differ from Category</small>
         </label>
     </div>
 
@@ -101,6 +94,7 @@
         <label>
             {{ form.pro_recommended }}
             Professional recommended
+            <small>Mark if this task should be done by a licensed contractor or specialist</small>
         </label>
         <label>
             {{ form.active }}
@@ -113,7 +107,7 @@
         {{ form.notes }}
     </label>
 
-    <div style="display: flex; gap: 0.5rem;">
+    <div class="form-actions">
         <button type="submit">{% if editing %}Save Changes{% else %}Create Schedule{% endif %}</button>
         {% if editing %}
         <a href="{% url 'schedule_detail' schedule.id %}" role="button" class="outline secondary">Cancel</a>

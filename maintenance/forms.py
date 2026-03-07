@@ -1,7 +1,12 @@
+from __future__ import annotations
+
+from datetime import date, datetime
+from typing import Any
+
 from django import forms
 from django.utils import timezone
 
-from .models import Asset, Issue, Project, Schedule, WorkLog
+from .models import Asset, Category, Frequency, Issue, Location, Project, Schedule, WorkLog
 
 
 class AssetForm(forms.ModelForm):
@@ -28,7 +33,7 @@ class AssetForm(forms.ModelForm):
             "expected_lifespan_years": forms.NumberInput(attrs={"min": "0"}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.fields["location"].required = False
         self.fields["category"].required = False
@@ -40,6 +45,8 @@ class AssetForm(forms.ModelForm):
         self.fields["expected_lifespan_years"].required = False
         self.fields["purchase_price"].required = False
         self.fields["notes"].required = False
+        self.fields["location"].empty_label = "Unspecified"
+        self.fields["category"].empty_label = "Uncategorized"
 
 
 class ProjectForm(forms.ModelForm):
@@ -66,7 +73,7 @@ class ProjectForm(forms.ModelForm):
             "estimated_cost": forms.NumberInput(attrs={"step": "0.01", "min": "0"}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.fields["description"].required = False
         self.fields["asset"].required = False
@@ -76,6 +83,10 @@ class ProjectForm(forms.ModelForm):
         self.fields["target_date"].required = False
         self.fields["estimated_cost"].required = False
         self.fields["notes"].required = False
+        self.fields["asset"].empty_label = "No specific asset"
+        self.fields["location"].empty_label = "Unspecified"
+        self.fields["category"].empty_label = "Uncategorized"
+        self.fields["impact"].empty_label = "Unspecified"
 
 
 class IssueForm(forms.ModelForm):
@@ -99,7 +110,7 @@ class IssueForm(forms.ModelForm):
             "discovered_at": forms.DateInput(attrs={"type": "date"}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.fields["details"].required = False
         self.fields["asset"].required = False
@@ -108,6 +119,36 @@ class IssueForm(forms.ModelForm):
         self.fields["discovered_at"].required = False
         self.fields["project"].required = False
         self.fields["notes"].required = False
+        self.fields["asset"].empty_label = "No specific asset"
+        self.fields["location"].empty_label = "Unspecified"
+        self.fields["source"].empty_label = "Not recorded"
+        self.fields["project"].empty_label = "No linked project"
+        if not self.instance.pk:
+            self.fields["discovered_at"].initial = date.today()
+
+
+class LocationForm(forms.ModelForm):
+    class Meta:
+        model = Location
+        fields = ["name", "notes"]
+        widgets = {
+            "notes": forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+class FrequencyForm(forms.ModelForm):
+    class Meta:
+        model = Frequency
+        fields = ["label", "days"]
+        widgets = {
+            "days": forms.NumberInput(attrs={"min": "1"}),
+        }
+
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ["name"]
 
 
 class ScheduleForm(forms.ModelForm):
@@ -119,9 +160,7 @@ class ScheduleForm(forms.ModelForm):
             "asset",
             "location",
             "category",
-            "frequency_days",
-            "frequency_label",
-            "season_hint",
+            "frequency",
             "priority",
             "impact",
             "estimated_minutes",
@@ -135,21 +174,22 @@ class ScheduleForm(forms.ModelForm):
             "notes": forms.Textarea(attrs={"rows": 3}),
             "estimated_cost": forms.NumberInput(attrs={"step": "0.01", "min": "0"}),
             "estimated_minutes": forms.NumberInput(attrs={"min": "0"}),
-            "frequency_days": forms.NumberInput(attrs={"min": "1"}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.fields["description"].required = False
         self.fields["asset"].required = False
         self.fields["location"].required = False
         self.fields["category"].required = False
-        self.fields["frequency_label"].required = False
-        self.fields["season_hint"].required = False
         self.fields["impact"].required = False
         self.fields["estimated_minutes"].required = False
         self.fields["estimated_cost"].required = False
         self.fields["notes"].required = False
+        self.fields["asset"].empty_label = "No specific asset"
+        self.fields["location"].empty_label = "Unspecified"
+        self.fields["category"].empty_label = "Uncategorized"
+        self.fields["impact"].empty_label = "Unspecified"
 
 
 class WorkLogForm(forms.ModelForm):
@@ -166,16 +206,16 @@ class WorkLogForm(forms.ModelForm):
             "notes",
         ]
         widgets = {
-            "completed_at": forms.DateTimeInput(
-                attrs={"type": "datetime-local"},
-                format="%Y-%m-%dT%H:%M",
+            "completed_at": forms.DateInput(
+                attrs={"type": "date"},
+                format="%Y-%m-%d",
             ),
             "notes": forms.Textarea(attrs={"rows": 3}),
             "cost": forms.NumberInput(attrs={"step": "0.01", "min": "0"}),
             "duration_minutes": forms.NumberInput(attrs={"min": "0"}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         # Make most fields optional in the form
         self.fields["schedule"].required = False
@@ -186,14 +226,19 @@ class WorkLogForm(forms.ModelForm):
         self.fields["cost"].required = False
         self.fields["duration_minutes"].required = False
         self.fields["notes"].required = False
+        self.fields["schedule"].empty_label = "No linked schedule"
+        self.fields["project"].empty_label = "No linked project"
+        self.fields["asset"].empty_label = "No specific asset"
 
-    def clean_completed_at(self):
+    def clean_completed_at(self) -> datetime:
         val = self.cleaned_data.get("completed_at")
         if not val:
             return timezone.now()
+        if isinstance(val, date) and not isinstance(val, datetime):
+            return timezone.make_aware(datetime.combine(val, datetime.min.time()))
         return val
 
-    def clean(self):
+    def clean(self) -> dict[str, Any]:
         cleaned = super().clean()
         schedule = cleaned.get("schedule")
         project = cleaned.get("project")

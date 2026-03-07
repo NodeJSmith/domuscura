@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from .models import Asset, Document, Issue, Location, Project, Schedule, WorkLog
+from .models import Asset, Category, Document, Frequency, Issue, Location, Project, Schedule, WorkLog
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ["name"]
+    ordering = ["name"]
 
 
 @admin.register(Location)
@@ -28,18 +34,24 @@ class AssetAdmin(admin.ModelAdmin):
         return obj.warranty_status
 
 
+@admin.register(Frequency)
+class FrequencyAdmin(admin.ModelAdmin):
+    list_display = ["label", "days"]
+    ordering = ["days"]
+
+
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
     list_display = [
         "name",
         "category",
-        "frequency_label",
+        "frequency",
         "priority",
         "impact",
         "active",
         "pro_recommended",
     ]
-    list_filter = ["category", "priority", "impact", "active", "pro_recommended"]
+    list_filter = ["category", "priority", "impact", "active", "pro_recommended", "frequency"]
     search_fields = ["name", "description"]
     list_editable = ["active"]
 

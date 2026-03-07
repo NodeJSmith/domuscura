@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 from datetime import timedelta
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Sum
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 
@@ -9,7 +12,7 @@ from maintenance.models import WorkLog
 
 
 @login_required
-def spending_summary(request):
+def spending_summary(request: HttpRequest) -> HttpResponse:
     now = timezone.now()
     year_start = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
 
@@ -38,9 +41,9 @@ def spending_summary(request):
             "total_minutes": agg["total_minutes"] or 0,
         }
 
-    # Category breakdown (YTD) via schedule or project category
+    # Category breakdown (YTD) — only entries with actual cost
     category_qs = (
-        WorkLog.objects.filter(completed_at__gte=year_start)
+        WorkLog.objects.filter(completed_at__gte=year_start, cost__gt=0)
         .values("schedule__category")
         .annotate(total=Sum("cost"), count=Count("id"))
         .order_by("-total")
@@ -50,9 +53,10 @@ def spending_summary(request):
         for row in category_qs
     ]
 
-    # Recent work logs
+    # Recent work logs with cost only
     recent_logs = (
-        WorkLog.objects.select_related("schedule", "project", "asset")
+        WorkLog.objects.filter(cost__gt=0)
+        .select_related("schedule", "project", "asset")
         .order_by("-completed_at")[:25]
     )
 
@@ -79,6 +83,7 @@ def spending_summary(request):
         agg = WorkLog.objects.filter(
             completed_at__gte=month_start,
             completed_at__lt=month_end,
+            cost__gt=0,
         ).aggregate(total=Sum("cost"), count=Count("id"))
 
         months.append({
@@ -92,5 +97,6 @@ def spending_summary(request):
         "categories": categories,
         "recent_logs": recent_logs,
         "months": months,
+        "has_any_costs": WorkLog.objects.filter(cost__gt=0).exists(),
     }
     return render(request, "spending/summary.html", context)

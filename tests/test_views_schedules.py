@@ -93,15 +93,15 @@ class TestScheduleDetail:
 
     def test_detail_never_done_status(self, client, schedule):
         resp = client.get(reverse("schedule_detail", args=[schedule.pk]))
-        assert resp.context["schedule"].status == "never_done"
+        assert resp.context["schedule"].schedule_status.status == "never_done"
 
     def test_detail_ok_status(self, client, schedule_with_log):
         resp = client.get(reverse("schedule_detail", args=[schedule_with_log.pk]))
-        assert resp.context["schedule"].status == "ok"
+        assert resp.context["schedule"].schedule_status.status == "ok"
 
     def test_detail_overdue_status(self, client, overdue_schedule):
         resp = client.get(reverse("schedule_detail", args=[overdue_schedule.pk]))
-        assert resp.context["schedule"].status == "overdue"
+        assert resp.context["schedule"].schedule_status.status == "overdue"
 
     def test_detail_404(self, client, db):
         resp = client.get(reverse("schedule_detail", args=[99999]))

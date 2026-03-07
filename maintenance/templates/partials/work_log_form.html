@@ -1,7 +1,6 @@
 <form hx-post="{% url 'work_log_form' %}"
-      hx-target="{% if schedule %}#schedule-{{ schedule.id }}{% else %}#work-log-form-container{% endif %}"
-      hx-swap="{% if schedule %}outerHTML{% else %}innerHTML{% endif %}"
-      {% if schedule %}@htmx:after-request="if(event.detail.successful) $el.closest('dialog').close()"{% endif %}>
+      hx-target="#work-log-form-container"
+      hx-swap="{% if schedule %}none{% else %}innerHTML{% endif %}">
     {% csrf_token %}
 
     {% if schedule %}
@@ -20,9 +19,9 @@
 
     <div class="grid">
         <label>
-            Completed at
+            Completed on
             {{ form.completed_at }}
-            <small>Leave blank for right now</small>
+            <small>Defaults to today</small>
         </label>
         <label>
             Performed by
@@ -52,5 +51,7 @@
     </article>
     {% endif %}
 
-    <button type="submit">Save</button>
+    <div class="modal-footer">
+        <button type="submit">Save</button>
+    </div>
 </form>

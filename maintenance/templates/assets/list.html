@@ -35,7 +35,7 @@
                 </select>
             </label>
         </div>
-        <div style="display: flex; gap: 0.5rem;">
+        <div class="filter-actions">
             <button type="submit">Filter</button>
             <a href="{% url 'asset_list' %}" role="button" class="outline secondary">Clear</a>
             <a href="{% url 'asset_create' %}" role="button" class="outline" style="margin-left: auto;">+ New Asset</a>
@@ -81,14 +81,21 @@
             <td>{% if asset.age_years is not None %}{{ asset.age_years }}y{% else %}—{% endif %}</td>
             <td>
                 <a href="{% url 'asset_edit' asset.id %}"
-                   role="button" class="outline secondary"
-                   style="padding: 0.15rem 0.5rem; margin: 0; font-size: 0.8rem;">
+                   role="button" class="outline secondary btn-action">
                     Edit
                 </a>
             </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7">No assets match your filters.</td></tr>
+        <tr>
+            <td colspan="7">
+                {% if any_exist %}
+                    No assets match your filters.
+                {% else %}
+                    No assets yet. Assets represent the equipment and systems in your home — HVAC, water heater, appliances. Link them to schedules and projects to keep all history in one place. <a href="{% url 'asset_create' %}">Add your first asset</a>.
+                {% endif %}
+            </td>
+        </tr>
         {% endfor %}
     </tbody>
 </table>

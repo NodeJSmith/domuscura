@@ -8,54 +8,117 @@
     <p>{{ total_active }} active schedule{{ total_active|pluralize }} &middot; {{ today|date:"l, N j" }}</p>
 </hgroup>
 
-{% if overdue %}
-<section>
-    <h2>
-        <mark class="status-overdue">Overdue</mark>
-        <small>({{ overdue|length }})</small>
-    </h2>
-    <div class="grid" id="overdue-grid">
-        {% for schedule in overdue %}
-            {% include "partials/schedule_card.html" with schedule=schedule %}
+<!-- Filters — auto-submit on change -->
+<form method="get" class="dashboard-filters">
+    <input type="hidden" name="sort" value="{{ filters.sort }}">
+    <select name="show" onchange="this.form.submit()">
+        <option value="action_needed" {% if filters.show == "action_needed" %}selected{% endif %}>Action needed</option>
+        <option value="all" {% if filters.show == "all" %}selected{% endif %}>All active</option>
+    </select>
+    <select name="priority" onchange="this.form.submit()">
+        <option value="">All priorities</option>
+        <option value="critical" {% if filters.priority == "critical" %}selected{% endif %}>Critical</option>
+        <option value="high" {% if filters.priority == "high" %}selected{% endif %}>High</option>
+        <option value="normal" {% if filters.priority == "normal" %}selected{% endif %}>Normal</option>
+        <option value="low" {% if filters.priority == "low" %}selected{% endif %}>Low</option>
+    </select>
+    <select name="impact" onchange="this.form.submit()">
+        <option value="">All impacts</option>
+        {% for value, label in impact_choices %}
+        <option value="{{ value }}" {% if filters.impact == value %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
-    </div>
-</section>
-{% endif %}
-
-{% if due_soon %}
-<section>
-    <h2>
-        <mark class="status-due-soon">Due Soon</mark>
-        <small>({{ due_soon|length }})</small>
-    </h2>
-    <div class="grid" id="due-soon-grid">
-        {% for schedule in due_soon %}
-            {% include "partials/schedule_card.html" with schedule=schedule %}
+    </select>
+    <select name="category" onchange="this.form.submit()">
+        <option value="">All categories</option>
+        {% for cat in categories %}
+        <option value="{{ cat }}" {% if filters.category == cat %}selected{% endif %}>{{ cat }}</option>
         {% endfor %}
-    </div>
-</section>
-{% endif %}
+    </select>
+    <select name="frequency" onchange="this.form.submit()">
+        <option value="">All frequencies</option>
+        {% for freq in frequencies %}
+        <option value="{{ freq.id }}" {% if filters.frequency == freq.id|stringformat:"s" %}selected{% endif %}>{{ freq }}</option>
+        {% endfor %}
+    </select>
+    {% if filters.priority or filters.category or filters.impact or filters.frequency %}
+    <a href="?show={{ filters.show }}" role="button" class="outline secondary">Clear</a>
+    {% endif %}
+</form>
 
-{% if never_done %}
-<section>
-    <details open>
-        <summary>
-            <strong>Never Done</strong>
-            <small>({{ never_done|length }})</small>
-            — seed schedules not yet started
-        </summary>
-        <div class="grid" id="never-done-grid">
-            {% for schedule in never_done %}
-                {% include "partials/schedule_card.html" with schedule=schedule %}
-            {% endfor %}
-        </div>
-    </details>
-</section>
+{% if schedules %}
+<figure>
+<table>
+    <thead>
+        {% with fp="show="|add:filters.show|add:"&priority="|add:filters.priority|add:"&impact="|add:filters.impact|add:"&category="|add:filters.category|add:"&frequency="|add:filters.frequency %}
+        <tr>
+            <th>
+                {% if filters.sort == "name" %}<a href="?sort=-name&{{ fp }}">Task <span class="sort-asc">↑</span></a>
+                {% elif filters.sort == "-name" %}<a href="?{{ fp }}">Task <span class="sort-desc">↓</span></a>
+                {% else %}<a href="?sort=name&{{ fp }}">Task</a>{% endif %}
+            </th>
+            <th class="col-mobile-hide">
+                {% if filters.sort == "priority" %}<a href="?sort=-priority&{{ fp }}">Priority <span class="sort-asc">↑</span></a>
+                {% elif filters.sort == "-priority" %}<a href="?{{ fp }}">Priority <span class="sort-desc">↓</span></a>
+                {% else %}<a href="?sort=priority&{{ fp }}">Priority</a>{% endif %}
+            </th>
+            <th class="col-mobile-hide">
+                {% if filters.sort == "impact" %}<a href="?sort=-impact&{{ fp }}">Impact <span class="sort-asc">↑</span></a>
+                {% elif filters.sort == "-impact" %}<a href="?{{ fp }}">Impact <span class="sort-desc">↓</span></a>
+                {% else %}<a href="?sort=impact&{{ fp }}">Impact</a>{% endif %}
+            </th>
+            <th class="col-mobile-hide">
+                {% if filters.sort == "frequency" %}<a href="?sort=-frequency&{{ fp }}">Frequency <span class="sort-asc">↑</span></a>
+                {% elif filters.sort == "-frequency" %}<a href="?{{ fp }}">Frequency <span class="sort-desc">↓</span></a>
+                {% else %}<a href="?sort=frequency&{{ fp }}">Frequency</a>{% endif %}
+            </th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        {% endwith %}
+    </thead>
+    <tbody>
+        {% for schedule in schedules %}
+        <tr id="schedule-{{ schedule.id }}">
+            <td>
+                <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
+                {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
+            </td>
+            <td class="col-mobile-hide">{{ schedule.get_priority_display }}</td>
+            <td class="col-mobile-hide">{{ schedule.get_impact_display|default:"—" }}</td>
+            <td class="col-mobile-hide"><small>{{ schedule.frequency }}</small></td>
+            <td>
+                {% include "partials/status_badge.html" with status=schedule.schedule_status.status %}
+                {% if schedule.schedule_status.status == "overdue" %}
+                <br><small class="status-overdue">{{ schedule.schedule_status.days_overdue }} day{{ schedule.schedule_status.days_overdue|pluralize }} overdue</small>
+                {% elif schedule.schedule_status.status == "due_soon" %}
+                <br><small>in {{ schedule.schedule_status.days_until_due }} day{{ schedule.schedule_status.days_until_due|pluralize }}</small>
+                {% elif schedule.schedule_status.status == "ok" %}
+                <br><small>due {{ schedule.schedule_status.next_due_date|date:"M j" }}</small>
+                {% endif %}
+            </td>
+            <td>
+                <button class="btn-action"
+                        hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
+                        hx-target="#work-log-form-container"
+                        hx-swap="innerHTML"
+                        onclick="window.dispatchEvent(new CustomEvent('work-log-open'))">Log Work</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</figure>
+<p><small>{{ schedules|length }} task{{ schedules|length|pluralize }}{% if filters.show == "action_needed" %} needing attention{% endif %}</small></p>
+{% elif not projects %}
+<article>
+    <p>Everything is up to date. Nothing needs attention.</p>
+</article>
 {% endif %}
 
 {% if projects %}
 <section>
     <h2>Active Projects</h2>
+    <figure>
     <table role="grid">
         <thead>
             <tr>
@@ -79,47 +142,9 @@
             {% endfor %}
         </tbody>
     </table>
+    </figure>
 </section>
 {% endif %}
 
-{% if ok %}
-<section>
-    <details>
-        <summary>
-            <strong>Up to Date</strong>
-            <small>({{ ok|length }})</small>
-            — recently completed
-        </summary>
-        <div class="grid" id="ok-grid">
-            {% for schedule in ok %}
-                {% include "partials/schedule_card.html" with schedule=schedule %}
-            {% endfor %}
-        </div>
-    </details>
-</section>
-{% endif %}
-
-{% if not overdue and not due_soon and not never_done and not projects %}
-<article>
-    <p>Everything is up to date. Nothing due or overdue.</p>
-</article>
-{% endif %}
-
-<!-- Work log modal -->
-<dialog id="work-log-modal" x-data="{ open: false }"
-        x-bind:open="open"
-        @work-log-open.window="open = true; $el.showModal()"
-        @close="open = false">
-    <article>
-        <header>
-            <button aria-label="Close" rel="prev" @click="$el.closest('dialog').close()"></button>
-            <h3>Log Work</h3>
-        </header>
-        <div id="work-log-form-container"
-             hx-get="{% url 'work_log_form' %}"
-             hx-trigger="work-log-open from:window"
-             hx-swap="innerHTML">
-        </div>
-    </article>
-</dialog>
+{% include "partials/work_log_modal.html" %}
 {% endblock %}
