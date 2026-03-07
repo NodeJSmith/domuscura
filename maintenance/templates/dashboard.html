@@ -11,6 +11,10 @@
 <!-- Filters — auto-submit on change -->
 <form method="get" class="dashboard-filters">
     <input type="hidden" name="sort" value="{{ filters.sort }}">
+    <select name="show" onchange="this.form.submit()">
+        <option value="action_needed" {% if filters.show == "action_needed" %}selected{% endif %}>Action needed</option>
+        <option value="all" {% if filters.show == "all" %}selected{% endif %}>All active</option>
+    </select>
     <select name="priority" onchange="this.form.submit()">
         <option value="">All priorities</option>
         <option value="critical" {% if filters.priority == "critical" %}selected{% endif %}>Critical</option>
@@ -37,74 +41,60 @@
         {% endfor %}
     </select>
     {% if filters.priority or filters.category or filters.impact or filters.frequency %}
-    <a href="?sort={{ filters.sort }}" role="button" class="outline secondary">Clear</a>
+    <a href="?show={{ filters.show }}" role="button" class="outline secondary">Clear</a>
     {% endif %}
 </form>
 
-{% if overdue or due_soon %}
-<section>
-    <figure>
-    <table>
-        <thead>
-            <tr>
-                <th><a href="?sort={% if filters.sort == 'name' %}-name{% else %}name{% endif %}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Task</a></th>
-                <th class="col-mobile-hide"><a href="?sort={% if filters.sort == 'priority' %}-priority{% else %}priority{% endif %}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Priority</a></th>
-                <th class="col-mobile-hide"><a href="?sort={% if filters.sort == 'impact' %}-impact{% else %}impact{% endif %}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Impact</a></th>
-                <th class="col-mobile-hide"><a href="?sort={% if filters.sort == 'frequency' %}-frequency{% else %}frequency{% endif %}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Frequency</a></th>
-                <th>Due</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% if overdue %}
-            <tr class="table-group-header">
-                <td colspan="6"><strong class="status-overdue">Overdue</strong> <small>({{ overdue|length }})</small></td>
-            </tr>
-            {% for schedule in overdue %}
-            <tr id="schedule-{{ schedule.id }}">
-                <td><a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
-                    {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}</td>
-                <td class="col-mobile-hide">{{ schedule.get_priority_display }}</td>
-                <td class="col-mobile-hide">{{ schedule.get_impact_display|default:"—" }}</td>
-                <td class="col-mobile-hide"><small>{{ schedule.frequency }}</small></td>
-                <td><small class="status-overdue">{{ schedule.schedule_status.days_overdue }} day{{ schedule.schedule_status.days_overdue|pluralize }} overdue</small></td>
-                <td>
-                    <button class="btn-action"
-                            hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
-                            hx-target="#work-log-form-container"
-                            hx-swap="innerHTML"
-                            onclick="window.dispatchEvent(new CustomEvent('work-log-open'))">Log Work</button>
-                </td>
-            </tr>
-            {% endfor %}
-            {% endif %}
-
-            {% if due_soon %}
-            <tr class="table-group-header">
-                <td colspan="6"><strong class="status-due-soon">Due Soon</strong> <small>({{ due_soon|length }})</small></td>
-            </tr>
-            {% for schedule in due_soon %}
-            <tr id="schedule-{{ schedule.id }}">
-                <td><a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
-                    {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}</td>
-                <td class="col-mobile-hide">{{ schedule.get_priority_display }}</td>
-                <td class="col-mobile-hide">{{ schedule.get_impact_display|default:"—" }}</td>
-                <td class="col-mobile-hide"><small>{{ schedule.frequency }}</small></td>
-                <td><small>in {{ schedule.schedule_status.days_until_due }} day{{ schedule.schedule_status.days_until_due|pluralize }}</small></td>
-                <td>
-                    <button class="btn-action"
-                            hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
-                            hx-target="#work-log-form-container"
-                            hx-swap="innerHTML"
-                            onclick="window.dispatchEvent(new CustomEvent('work-log-open'))">Log Work</button>
-                </td>
-            </tr>
-            {% endfor %}
-            {% endif %}
-        </tbody>
-    </table>
-    </figure>
-</section>
+{% if schedules %}
+<figure>
+<table>
+    <thead>
+        <tr>
+            <th><a href="?sort=name&show={{ filters.show }}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Task</a></th>
+            <th class="col-mobile-hide"><a href="?sort=priority&show={{ filters.show }}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Priority</a></th>
+            <th class="col-mobile-hide"><a href="?sort=impact&show={{ filters.show }}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Impact</a></th>
+            <th class="col-mobile-hide"><a href="?sort=frequency&show={{ filters.show }}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Frequency</a></th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for schedule in schedules %}
+        <tr id="schedule-{{ schedule.id }}">
+            <td>
+                <a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
+                {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}
+            </td>
+            <td class="col-mobile-hide">{{ schedule.get_priority_display }}</td>
+            <td class="col-mobile-hide">{{ schedule.get_impact_display|default:"—" }}</td>
+            <td class="col-mobile-hide"><small>{{ schedule.frequency }}</small></td>
+            <td>
+                {% include "partials/status_badge.html" with status=schedule.schedule_status.status %}
+                {% if schedule.schedule_status.status == "overdue" %}
+                <br><small class="status-overdue">{{ schedule.schedule_status.days_overdue }} day{{ schedule.schedule_status.days_overdue|pluralize }} overdue</small>
+                {% elif schedule.schedule_status.status == "due_soon" %}
+                <br><small>in {{ schedule.schedule_status.days_until_due }} day{{ schedule.schedule_status.days_until_due|pluralize }}</small>
+                {% elif schedule.schedule_status.status == "ok" %}
+                <br><small>due {{ schedule.schedule_status.next_due_date|date:"M j" }}</small>
+                {% endif %}
+            </td>
+            <td>
+                <button class="btn-action"
+                        hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
+                        hx-target="#work-log-form-container"
+                        hx-swap="innerHTML"
+                        onclick="window.dispatchEvent(new CustomEvent('work-log-open'))">Log Work</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</figure>
+<p><small>{{ schedules|length }} task{{ schedules|length|pluralize }}{% if filters.show == "action_needed" %} needing attention{% endif %}</small></p>
+{% elif not projects %}
+<article>
+    <p>Everything is up to date. Nothing needs attention.</p>
+</article>
 {% endif %}
 
 {% if projects %}
@@ -136,92 +126,6 @@
     </table>
     </figure>
 </section>
-{% endif %}
-
-{% if never_done %}
-<section>
-    <details open>
-        <summary>
-            <strong>Never Done</strong>
-            <small>({{ never_done|length }})</small>
-            — no completions recorded yet
-        </summary>
-        <figure>
-        <table>
-            <thead>
-                <tr>
-                    <th><a href="?sort={% if filters.sort == 'name' %}-name{% else %}name{% endif %}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Task</a></th>
-                    <th class="col-mobile-hide"><a href="?sort={% if filters.sort == 'priority' %}-priority{% else %}priority{% endif %}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Priority</a></th>
-                    <th class="col-mobile-hide"><a href="?sort={% if filters.sort == 'impact' %}-impact{% else %}impact{% endif %}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Impact</a></th>
-                    <th class="col-mobile-hide"><a href="?sort={% if filters.sort == 'frequency' %}-frequency{% else %}frequency{% endif %}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Frequency</a></th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for schedule in never_done %}
-                <tr id="schedule-{{ schedule.id }}">
-                    <td><a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
-                        {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}</td>
-                    <td class="col-mobile-hide">{{ schedule.get_priority_display }}</td>
-                    <td class="col-mobile-hide">{{ schedule.get_impact_display|default:"—" }}</td>
-                    <td class="col-mobile-hide"><small>{{ schedule.frequency }}</small></td>
-                    <td>
-                        <button class="btn-action"
-                                hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
-                                hx-target="#work-log-form-container"
-                                hx-swap="innerHTML"
-                                onclick="window.dispatchEvent(new CustomEvent('work-log-open'))">Log Work</button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        </figure>
-    </details>
-</section>
-{% endif %}
-
-{% if ok %}
-<section>
-    <details>
-        <summary>
-            <strong>Up to Date</strong>
-            <small>({{ ok|length }})</small>
-            — recently completed
-        </summary>
-        <figure>
-        <table>
-            <thead>
-                <tr>
-                    <th>Task</th>
-                    <th class="col-mobile-hide">Priority</th>
-                    <th class="col-mobile-hide">Impact</th>
-                    <th class="col-mobile-hide">Frequency</th>
-                    <th>Next Due</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for schedule in ok %}
-                <tr>
-                    <td><a href="{% url 'schedule_detail' schedule.id %}"><strong>{{ schedule.name }}</strong></a>
-                        {% if schedule.asset %}<br><small>{{ schedule.asset.name }}</small>{% endif %}</td>
-                    <td class="col-mobile-hide">{{ schedule.get_priority_display }}</td>
-                    <td class="col-mobile-hide">{{ schedule.get_impact_display|default:"—" }}</td>
-                    <td class="col-mobile-hide"><small>{{ schedule.frequency }}</small></td>
-                    <td><small>{{ schedule.schedule_status.next_due_date|date:"M j" }}</small></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        </figure>
-    </details>
-</section>
-{% endif %}
-
-{% if not overdue and not due_soon and not never_done and not projects %}
-<article>
-    <p>Everything is up to date. Nothing due or overdue.</p>
-</article>
 {% endif %}
 
 {% include "partials/work_log_modal.html" %}

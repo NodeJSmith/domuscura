@@ -26,6 +26,7 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     category_filter = request.GET.get("category", "")
     impact_filter = request.GET.get("impact", "")
     frequency_filter = request.GET.get("frequency", "")
+    show = request.GET.get("show", "action_needed")
     sort = request.GET.get("sort", "")
 
     if priority_filter:
@@ -37,42 +38,38 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     if frequency_filter:
         qs = qs.filter(frequency_id=frequency_filter)
 
-    # Categorize by status
-    overdue: list[Schedule] = []
-    due_soon: list[Schedule] = []
-    never_done: list[Schedule] = []
-    ok: list[Schedule] = []
+    all_schedules = list(_annotate_status(qs))
+    total_active = len(all_schedules)
 
-    for s in _annotate_status(qs):
-        status = s.schedule_status.status
-        if status == "never_done":
-            never_done.append(s)
-        elif status == "overdue":
-            overdue.append(s)
-        elif status == "due_soon":
-            due_soon.append(s)
-        else:
-            ok.append(s)
+    # Hide up-to-date rows unless user asks for all
+    if show == "action_needed":
+        all_schedules = [s for s in all_schedules if s.schedule_status.status != "ok"]
 
-    # Sort within sections (strip leading '-' — dashboard sorts are single-direction)
+    # Sort
+    _STATUS_ORDER: dict[str, int] = {"overdue": 0, "due_soon": 1, "never_done": 2, "ok": 3}
     sort_key = sort.lstrip("-")
+
     if sort_key == "priority":
-        for lst in (overdue, due_soon, never_done):
-            lst.sort(key=lambda s: _PRIORITY_ORDER.get(s.priority, 2))
+        all_schedules.sort(key=lambda s: _PRIORITY_ORDER.get(s.priority, 2))
     elif sort_key == "name":
-        for lst in (overdue, due_soon, never_done):
-            lst.sort(key=lambda s: s.name.lower())
+        all_schedules.sort(key=lambda s: s.name.lower())
     elif sort_key == "impact":
-        for lst in (overdue, due_soon, never_done):
-            lst.sort(key=lambda s: _IMPACT_ORDER.get(s.impact, 99))
+        all_schedules.sort(key=lambda s: _IMPACT_ORDER.get(s.impact, 99))
     elif sort_key == "frequency":
-        for lst in (overdue, due_soon, never_done):
-            lst.sort(key=lambda s: s.frequency.days)
+        all_schedules.sort(key=lambda s: s.frequency.days)
     else:
-        # Default: overdue by urgency, due_soon by soonest, never_done by priority
-        overdue.sort(key=lambda s: s.schedule_status.days_overdue, reverse=True)
-        due_soon.sort(key=lambda s: s.schedule_status.days_until_due)
-        never_done.sort(key=lambda s: _PRIORITY_ORDER.get(s.priority, 2))
+        # Default: status order, with within-group ordering
+        def _status_sort_key(s: Schedule) -> tuple[int, int]:
+            st = s.schedule_status
+            order = _STATUS_ORDER.get(st.status, 4)
+            if st.status == "overdue":
+                secondary = -(st.days_overdue or 0)  # most overdue first
+            elif st.status == "due_soon":
+                secondary = st.days_until_due or 0   # soonest first
+            else:
+                secondary = _PRIORITY_ORDER.get(s.priority, 2)
+            return (order, secondary)
+        all_schedules.sort(key=_status_sort_key)
 
     # Filter options
     categories = Category.objects.values_list("name", flat=True)
@@ -90,12 +87,9 @@ def dashboard(request: HttpRequest) -> HttpResponse:
         active_projects.append(p)
 
     context = {
-        "overdue": overdue,
-        "due_soon": due_soon,
-        "never_done": never_done,
-        "ok": ok,
+        "schedules": all_schedules,
         "projects": active_projects,
-        "total_active": len(overdue) + len(due_soon) + len(never_done) + len(ok),
+        "total_active": total_active,
         "today": today,
         "categories": categories,
         "frequencies": frequencies,
@@ -105,6 +99,7 @@ def dashboard(request: HttpRequest) -> HttpResponse:
             "category": category_filter,
             "impact": impact_filter,
             "frequency": frequency_filter,
+            "show": show,
             "sort": sort,
         },
     }
