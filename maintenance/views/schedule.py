@@ -88,8 +88,17 @@ def schedule_list(request: HttpRequest) -> HttpResponse:
         schedules = [s for s in schedules if s.schedule_status.status == status_filter]
 
     # Sort
-    sort = request.GET.get("sort", "name")
-    _sort_schedules(schedules, sort)
+    sort = request.GET.get("sort", "")
+    if sort:
+        _sort_schedules(schedules, sort)
+    else:
+        # Default: status order (urgent first), secondary by priority within group
+        _PRIORITY_ORDER = {"critical": 0, "high": 1, "normal": 2, "low": 3}
+        _STATUS_ORDER = {"overdue": 0, "due_soon": 1, "never_done": 2, "ok": 3}
+        schedules.sort(key=lambda s: (
+            _STATUS_ORDER.get(s.schedule_status.status, 4),
+            _PRIORITY_ORDER.get(s.priority, 2),
+        ))
 
     # Filter options for the template
     categories = Category.objects.values_list("name", flat=True)

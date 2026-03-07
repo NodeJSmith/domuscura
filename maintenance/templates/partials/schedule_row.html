@@ -9,10 +9,19 @@
         {{ schedule.frequency }}
     </td>
     <td class="col-mobile-hide">{{ schedule.get_priority_display }}</td>
-    <td>{% include "partials/status_badge.html" with status=schedule.schedule_status.status %}</td>
+    <td>
+        {% include "partials/status_badge.html" with status=schedule.schedule_status.status %}
+        {% if schedule.schedule_status.status == "overdue" %}
+        <br><small class="status-overdue">{{ schedule.schedule_status.days_overdue }} day{{ schedule.schedule_status.days_overdue|pluralize }} overdue</small>
+        {% elif schedule.schedule_status.status == "due_soon" %}
+        <br><small>in {{ schedule.schedule_status.days_until_due }} day{{ schedule.schedule_status.days_until_due|pluralize }}</small>
+        {% elif schedule.schedule_status.status == "ok" %}
+        <br><small>due {{ schedule.schedule_status.next_due_date|date:"M j" }}</small>
+        {% endif %}
+    </td>
     <td>
         <div style="display: flex; gap: 0.25rem;">
-            <button style="padding: 0.15rem 0.5rem; margin: 0; font-size: 0.8rem;"
+            <button class="btn-action"
                     hx-get="{% url 'work_log_form_for_schedule' schedule.id %}"
                     hx-target="#work-log-form-container"
                     hx-swap="innerHTML"
@@ -21,8 +30,7 @@
                 Log Work
             </button>
             <a href="{% url 'schedule_edit' schedule.id %}"
-               role="button" class="outline secondary"
-               style="padding: 0.15rem 0.5rem; margin: 0; font-size: 0.8rem;">
+               role="button" class="outline secondary btn-action">
                 Edit
             </a>
         </div>
