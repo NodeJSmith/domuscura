@@ -294,6 +294,12 @@ figure > table {
     margin-bottom: 0;
 }
 
+/* ─── Sort indicators ───────────────────────────────────────────────────── */
+.sort-asc, .sort-desc {
+    font-size: 0.75em;
+    opacity: 0.7;
+}
+
 /* ─── HTMX states ────────────────────────────────────────────────────────── */
 form.htmx-request [type="submit"],
 button.htmx-request {

@@ -49,14 +49,32 @@
 <figure>
 <table>
     <thead>
+        {% with fp="show="|add:filters.show|add:"&priority="|add:filters.priority|add:"&impact="|add:filters.impact|add:"&category="|add:filters.category|add:"&frequency="|add:filters.frequency %}
         <tr>
-            <th><a href="?sort=name&show={{ filters.show }}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Task</a></th>
-            <th class="col-mobile-hide"><a href="?sort=priority&show={{ filters.show }}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Priority</a></th>
-            <th class="col-mobile-hide"><a href="?sort=impact&show={{ filters.show }}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Impact</a></th>
-            <th class="col-mobile-hide"><a href="?sort=frequency&show={{ filters.show }}&priority={{ filters.priority }}&impact={{ filters.impact }}&category={{ filters.category }}&frequency={{ filters.frequency }}">Frequency</a></th>
+            <th>
+                {% if filters.sort == "name" %}<a href="?sort=-name&{{ fp }}">Task <span class="sort-asc">↑</span></a>
+                {% elif filters.sort == "-name" %}<a href="?{{ fp }}">Task <span class="sort-desc">↓</span></a>
+                {% else %}<a href="?sort=name&{{ fp }}">Task</a>{% endif %}
+            </th>
+            <th class="col-mobile-hide">
+                {% if filters.sort == "priority" %}<a href="?sort=-priority&{{ fp }}">Priority <span class="sort-asc">↑</span></a>
+                {% elif filters.sort == "-priority" %}<a href="?{{ fp }}">Priority <span class="sort-desc">↓</span></a>
+                {% else %}<a href="?sort=priority&{{ fp }}">Priority</a>{% endif %}
+            </th>
+            <th class="col-mobile-hide">
+                {% if filters.sort == "impact" %}<a href="?sort=-impact&{{ fp }}">Impact <span class="sort-asc">↑</span></a>
+                {% elif filters.sort == "-impact" %}<a href="?{{ fp }}">Impact <span class="sort-desc">↓</span></a>
+                {% else %}<a href="?sort=impact&{{ fp }}">Impact</a>{% endif %}
+            </th>
+            <th class="col-mobile-hide">
+                {% if filters.sort == "frequency" %}<a href="?sort=-frequency&{{ fp }}">Frequency <span class="sort-asc">↑</span></a>
+                {% elif filters.sort == "-frequency" %}<a href="?{{ fp }}">Frequency <span class="sort-desc">↓</span></a>
+                {% else %}<a href="?sort=frequency&{{ fp }}">Frequency</a>{% endif %}
+            </th>
             <th>Status</th>
             <th>Actions</th>
         </tr>
+        {% endwith %}
     </thead>
     <tbody>
         {% for schedule in schedules %}

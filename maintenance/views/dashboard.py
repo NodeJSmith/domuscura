@@ -48,15 +48,16 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     # Sort
     _STATUS_ORDER: dict[str, int] = {"overdue": 0, "due_soon": 1, "never_done": 2, "ok": 3}
     sort_key = sort.lstrip("-")
+    descending = sort.startswith("-")
 
     if sort_key == "priority":
-        all_schedules.sort(key=lambda s: _PRIORITY_ORDER.get(s.priority, 2))
+        all_schedules.sort(key=lambda s: _PRIORITY_ORDER.get(s.priority, 2), reverse=descending)
     elif sort_key == "name":
-        all_schedules.sort(key=lambda s: s.name.lower())
+        all_schedules.sort(key=lambda s: s.name.lower(), reverse=descending)
     elif sort_key == "impact":
-        all_schedules.sort(key=lambda s: _IMPACT_ORDER.get(s.impact, 99))
+        all_schedules.sort(key=lambda s: _IMPACT_ORDER.get(s.impact, 99), reverse=descending)
     elif sort_key == "frequency":
-        all_schedules.sort(key=lambda s: s.frequency.days)
+        all_schedules.sort(key=lambda s: s.frequency.days, reverse=descending)
     else:
         # Default: status order, with within-group ordering
         def _status_sort_key(s: Schedule) -> tuple[int, int]:
